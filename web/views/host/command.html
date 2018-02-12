@@ -1,0 +1,91 @@
+<div class="row">
+	<div class="col-md-12">
+    <ol class="breadcrumb">
+            <li><a href="/"><i class="glyphicon glyphicon-home"></i> </a></li>
+       <li><a href="/host">主机</a></li>
+       <li class="active">远程命令</li>
+    </ol>		
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-info">
+			 <div class="panel-heading">
+                         </div>
+			 <div class="panel-body">
+                          <div class="col-md-6">
+	                    <div class="input-group">
+		              <input type="text" class="form-control" placeholder="输入命令..." id="command">
+			      <span class="input-group-btn">
+			        <button class="btn btn-success" type="button" id="btn1">Go!</button>
+		              </span>
+			    </div><!-- /input-group -->
+			    <div class="clearfix" style="margin-top: 10px;"></div>
+			    <p class="alert alert-warning">在输入框中输入Linux shell命令，<br>以下是执行结果:</p>
+		           </div><!-- /.col-lg-6 -->
+                          <div class="col-md-offset-4 col-md-2">
+                                  <div class="panel panel-primary">
+					 <div class="panel-body">
+					  <ul class="list-unstyled">
+						  <li><strong>主机名</strong>: {{ .Hosts.Name }}</li>
+						  <li><strong>IP</strong>: {{ .Hosts.Ip }}</li>
+						  <li><strong>User</strong>: {{ .Hosts.User }}</li>
+						  <li><strong>组别</strong>: </li>
+					  </ul>
+                                  </div>
+                                  </div>
+                          </div>			   
+			   <div class="col-md-12">
+				 <div id="showinfo" class="alert alert-info">
+				 </div>
+			   </div>
+			 </div>
+		</div>
+	</div>
+</div>
+
+<script>
+$(document).ready(function(){
+     $("#btn1").click(function(){
+ 	 var cmd = $("#command").val();
+             $.ajax({
+                url:'/command/{{ .Hosts.Name }}',
+                type:'POST', //GET
+                async:true,    //或false,是否异步
+                data:{
+                   command: cmd
+                },
+                timeout:15000,    //超时时间
+                dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+                beforeSend:function(xhr){
+                   console.log(xhr)
+                   console.log('发送前')
+                },
+                success:function(data){
+                      $("#showinfo").empty();
+			var b
+			b = "<pre>"
+                        b += data.Result
+		        b += "</pre>"
+		      $("#showinfo").append(b);
+                },
+                error:function(xhr,textStatus){
+		    $("#showinfo").empty();
+		    var b
+		    b = '错误: '
+		    b += textStatus
+		    $("#showinfo").append(b);
+                },
+                complete:function(){
+                    console.log('结束')
+                }
+          })
+	  
+	});
+
+});
+
+function line2br(text){
+	  return text.split("\n").join("<br />");
+}
+</script>
