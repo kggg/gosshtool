@@ -11,26 +11,32 @@ type Hostinfo struct {
 	User       string
 	Pass       string
 	Port       int
-	Groups     string
+	Groups     *Groups `orm:"rel(fk)"`
 	Created_at string
+}
+
+type HostAll struct {
+	Hostinfo
+	Gname string
 }
 
 func init() {
 	orm.RegisterModel(new(Hostinfo))
 }
 
-func FindAllHostinfo() ([]Hostinfo, error) {
-	var hostinfo []Hostinfo
+func FindAllHostinfo() ([]HostAll, error) {
+	var hostinfo []HostAll
 	o := orm.NewOrm()
 	//_, err := o.QueryTable("hostinfo").RelatedSel().OrderBy("-id").Limit(5, start).All(&hostinfo)
-	_, err := o.QueryTable("hostinfo").RelatedSel().OrderBy("-id").All(&hostinfo)
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, groups.gname from hostinfo left join groups on groups.id=hostinfo.groups_id"
+	_, err := o.Raw(sql).QueryRows(&hostinfo)
 	return hostinfo, err
 }
 
 func FindHostByName(str string) (Hostinfo, error) {
 	o := orm.NewOrm()
 	var hostinfo Hostinfo
-	err := o.QueryTable("hostinfo").Filter("name", str).One(&hostinfo)
+	err := o.QueryTable("hostinfo").Filter("name", str).RelatedSel("Groups").One(&hostinfo)
 	return hostinfo, err
 }
 

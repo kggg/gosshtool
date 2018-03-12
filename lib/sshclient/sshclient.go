@@ -22,37 +22,42 @@ type CONClient struct {
 	Addr      string
 }
 
-func New(host, user, pass string, port int, hostname string, module string, cmd string) *CONClient {
-	sshclient, err := connect(host, user, pass, port)
+func New(ip, user, pass string, port int, hostname string) *CONClient {
+	sshclient, err := connect(ip, user, pass, port)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 	var conclient = &CONClient{}
 	conclient.SshClient = sshclient
 	conclient.Hostname = hostname
-	conclient.Addr = host
-	conclient.Cmd = cmd
-	conclient.Module = module
+	conclient.Addr = ip
 	return conclient
 }
 
 func (this *CONClient) session() *ssh.Session {
 	session, err := this.SshClient.NewSession()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 	return session
 }
 
-func (this *CONClient) Execute() error {
-	if this.Module == "cmd" {
-		err := this.Exec(this.Cmd)
+func (this *CONClient) Execute(module, cmd string) error {
+	if module == "cmd" {
+		res, err := this.Exec(cmd)
 		if err != nil {
-			return err
+			color.Cyan("\n------ %s [%s] ------", this.Hostname, this.Addr)
+			color.Red("Command [%s] of host %s: %s\n", cmd, this.Addr, err)
+			color.Green(string(res))
+		} else {
+			color.Cyan("\n------ %s [%s] ------\n", this.Hostname, this.Addr)
+			color.Green(string(res))
 		}
 		return nil
 	}
-	filepath := strings.Split(this.Cmd, " ")
+	filepath := strings.Split(cmd, " ")
 	src := filepath[0]
 	workdir, err := os.Getwd()
 	if err != nil {
@@ -65,13 +70,13 @@ func (this *CONClient) Execute() error {
 	if strings.HasPrefix(dst, "workdir://") {
 		dst = strings.Replace(dst, "workdir:/", workdir, 1)
 	}
-	if this.Module == "sendfile" {
+	if module == "sendfile" {
 		err := this.SendFile(src, dst)
 		if err != nil {
 			return err
 		}
 	}
-	if this.Module == "getfile" {
+	if module == "getfile" {
 		fmt.Println(dst)
 		err := this.GetFile(src, dst)
 		if err != nil {
@@ -82,19 +87,11 @@ func (this *CONClient) Execute() error {
 	return nil
 }
 
-func (this *CONClient) Exec(str string) error {
+func (this *CONClient) Exec(cmd string) ([]byte, error) {
 	session := this.session()
 	defer session.Close()
-	res, err := session.CombinedOutput(str)
-	if err != nil {
-		color.Cyan("\n------ %s [%s] ------", this.Hostname, this.Addr)
-		color.Red("Command [%s] of host %s: %s\n", this.Cmd, this.Addr, err)
-		color.Green(string(res))
-	} else {
-		color.Cyan("\n------ %s [%s] ------\n", this.Hostname, this.Addr)
-		color.Green(string(res))
-	}
-	return nil
+	res, err := session.CombinedOutput(cmd)
+	return res, err
 }
 
 func (this *CONClient) addSftpClient() *sftp.Client {
@@ -196,7 +193,7 @@ func getHostKey(host string) (ssh.PublicKey, error) {
 	return hostKey, nil
 }
 
-func connect(user, password, host string, port int) (*ssh.Client, error) {
+func connect(ip, user, password string, port int) (*ssh.Client, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -204,9 +201,10 @@ func connect(user, password, host string, port int) (*ssh.Client, error) {
 		client       *ssh.Client
 		err          error
 	)
-	hostKey, err := getHostKey(host)
+	hostKey, err := getHostKey(ip)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil, err
 	}
 	// get auth method
 	auth = make([]ssh.AuthMethod, 0)
@@ -220,7 +218,7 @@ func connect(user, password, host string, port int) (*ssh.Client, error) {
 	}
 
 	// connet to ssh
-	addr = fmt.Sprintf("%s:%d", host, port)
+	addr = fmt.Sprintf("%s:%d", ip, port)
 	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
 		return nil, err
 	}

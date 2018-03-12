@@ -6,7 +6,7 @@
        <li class="active">主机列表</li>
     </ol> 
     <ul class="nav nav-tabs">
-      <li><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
+      <li class="active"><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
       <li><a href="/host/add"><i class="glyphicon glyphicon-plus"> </i> 新增主机</a></li>
     
     </ul>
@@ -18,13 +18,13 @@
   <table class="table table-hover table-striped table-bordered">
 	  <tr><th>主机名</th><th>IP</th><th>用户名</th><th>密码</th><th>端口</th><th>组别</th><th>操作</th></tr>
     {{ range .Hosts }}
-       <tr><td><a href="/command/{{ .Name }}">{{ .Name }}</a></td>
+       <tr><td><a href="/host/command/{{ .Name }}">{{ .Name }}</a></td>
            <td>{{ .Ip }}</td><td>{{ .User }}</td><td>{{ .Pass }}</td>
            <td>{{ .Port }}</td>
-           <td></td>
+	   <td>{{ .Gname }}</td>
            <td>
                <div class="btn-group">
-                 <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
+		       <a href="/host/edit/{{.Id }}" class="btn btn-info"><i class="glyphicon glyphicon-edit"> </i>编辑</a>
                  <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-config"> </i>配置</button>
 		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-info" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
                   <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

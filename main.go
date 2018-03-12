@@ -15,8 +15,8 @@ func main() {
 		for name, value := range cmd.Host {
 			wg.Add(1)
 			go func(host, user, pass string, port int, hostname string, module, cmd string) {
-				sshClient := sshclient.New(user, pass, host, port, hostname, module, cmd)
-				err := sshClient.Execute()
+				sshClient := sshclient.New(user, pass, host, port, hostname)
+				err := sshClient.Execute(module, cmd)
 				if err != nil {
 					log.Fatal(err)
 				}

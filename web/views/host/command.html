@@ -30,7 +30,7 @@
 						  <li><strong>主机名</strong>: {{ .Hosts.Name }}</li>
 						  <li><strong>IP</strong>: {{ .Hosts.Ip }}</li>
 						  <li><strong>User</strong>: {{ .Hosts.User }}</li>
-						  <li><strong>组别</strong>: </li>
+						  <li><strong>组别</strong>: {{ .Hosts.Groups.Gname}} </li>
 					  </ul>
                                   </div>
                                   </div>
@@ -49,7 +49,7 @@ $(document).ready(function(){
      $("#btn1").click(function(){
  	 var cmd = $("#command").val();
              $.ajax({
-                url:'/command/{{ .Hosts.Name }}',
+                url:'/host/command/{{ .Hosts.Name }}',
                 type:'POST', //GET
                 async:true,    //或false,是否异步
                 data:{
@@ -58,7 +58,10 @@ $(document).ready(function(){
                 timeout:15000,    //超时时间
                 dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
                 beforeSend:function(xhr){
-                   console.log(xhr)
+			if(cmd.length == 0){
+				$("#showinfo").empty();
+				$("#showinfo").append("can not empty")
+			}
                    console.log('发送前')
                 },
                 success:function(data){

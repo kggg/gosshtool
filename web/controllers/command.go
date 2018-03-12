@@ -3,6 +3,7 @@ package controllers
 import (
 	"gosshtool/lib/sshclient"
 	"gosshtool/web/models"
+	"gosshtool/web/utils/msgcrypt"
 )
 
 type CommandController struct {
@@ -19,10 +20,13 @@ func (c *CommandController) Execute() {
 		if cc == "" {
 			c.Resp(false, "the command empty")
 		}
-		client := sshclient.New(hostname.Ip, hostname.User, hostname.Pass, hostname.Port, hostname.Name)
+		decryptPass, err := msgcrypt.AesDecrypt(hostname.Pass)
+		c.CheckErr(err, "decrypt pass error")
+		client := sshclient.New(hostname.Ip, hostname.User, decryptPass, hostname.Port, hostname.Name)
 		result, err := client.Exec(cc)
+		c.CheckErr(err, "execute remote cmd error")
 		var cmd Cmd
-		cmd.Result = result
+		cmd.Result = string(result)
 		cmd.Err = err
 		c.Data["json"] = &cmd
 		c.ServeJSON()

@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego/validation"
 	"gosshtool/web/models"
+	"gosshtool/web/utils/msgcrypt"
 	"gosshtool/web/utils/validate"
 	"strconv"
 )
@@ -13,16 +14,10 @@ type HostController struct {
 
 func (c *HostController) Get() {
 	hostinfo, err := models.FindAllHostinfo()
-	if err != nil {
-		return
-	}
-
+	c.CheckErr(err, "get hostinfo error")
 	c.Data["Title"] = "主机列表"
 	c.Data["Hosts"] = hostinfo
 	c.TplName = "host/index.html"
-	c.LayoutSections = make(map[string]string)
-	c.LayoutSections["HtmlHead"] = "common/datatable-css.tpl"
-	c.LayoutSections["Scripts"] = "common/datatable-js.tpl"
 }
 
 func (c *HostController) AddHost() {
@@ -51,7 +46,9 @@ func (c *HostController) AddHost() {
 		if models.NameExistCheck(hostname) {
 			c.Resp(false, "the hostname has been already existing")
 		}
-		_, err = models.AddHost(hostname, ipaddr, user, pass, iport, group)
+		encryptPass, err := msgcrypt.AesEncrypt(pass)
+		c.CheckErr(err, "encrypt pass error")
+		_, err = models.AddHost(hostname, ipaddr, user, encryptPass, iport, group)
 		if err == nil {
 			c.Resp(true, "添加主机成功")
 		} else {
