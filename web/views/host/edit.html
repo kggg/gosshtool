@@ -6,8 +6,9 @@
        <li class="active">新增主机</li>
     </ol>	  
     <ul class="nav nav-tabs">
-      <li><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
-      <li class="active"><a href="/host/add"><i class="glyphicon glyphicon-plus"> </i> 新增主机</a></li>
+	    <li><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
+      <li><a href="/host/add"><i class="glyphicon glyphicon-plus"> </i> 新增主机</a></li>
+      <li class="active"><a href="/host/edit/{{ .Hosts.Id }}"><i class="glyphicon glyphicon-plus"> </i> 编辑主机</a></li>
 
     </ul>
    </div>
@@ -19,41 +20,31 @@
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
 			<div id="showinfo"></div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
-		<form action="/host/add" method="post" class="">
+			<form action="/host/edit/{{ .Hosts.Id }}" method="post" class="">
 			<div class="input-group">
                           <span class="input-group-addon" id="sizing-addon1">主机名</span>
-                          <input type="text" class="form-control" aria-describedby="sizing-addon1" name="hostname">
+			  <input type="text" class="form-control" aria-describedby="sizing-addon1" name="hostname" value="{{ .Hosts.Name}}">
                         </div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
 			<div class="input-group">
                           <span class="input-group-addon" id="sizing-addon2">IP地址</span>
-                          <input type="text" class="form-control" aria-describedby="sizing-addon2" name="ipaddr">
+			  <input type="text" class="form-control" aria-describedby="sizing-addon2" name="ipaddr" value="{{ .Hosts.Ip}}">
                         </div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
 			<div class="input-group">
                           <span class="input-group-addon" id="sizing-addon3">用户名</span>
-                          <input type="text" class="form-control" aria-describedby="sizing-addon3" name="user">
+			  <input type="text" class="form-control" aria-describedby="sizing-addon3" name="user" value="{{.Hosts.User}}">
                         </div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
-			<div class="input-group">
-                          <span class="input-group-addon" id="sizing-addon4">密码</span>
-                          <input type="password" class="form-control" aria-describedby="sizing-addon4" name="pass">
-                        </div>
-			<div class="clearfix" style="margin-bottom: 10px;"></div>
-                        <div class="input-group">
-                          <span class="input-group-addon" id="sizing-addon5">确认密码</span>
-                          <input type="password" class="form-control" aria-describedby="sizing-addon5" name="pass2">
-                        </div>
-                        <div class="clearfix" style="margin-bottom: 10px;"></div>			
 			<div class="input-group">
                           <span class="input-group-addon" id="sizing-addon6">端口</span>
-                          <input type="text" class="form-control" aria-describedby="sizing-addon6" name="port">
+			  <input type="text" class="form-control" aria-describedby="sizing-addon6" name="port" value="{{ .Hosts.Port}}">
                         </div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
                         <div class="input-group">
                           <span class="input-group-addon" id="sizing-addon7">组别</span>
-                          <select  class="form-control" id="gname" aria-describedby="sizing-addon7" name="group">
-				  <option>选择组别</option>
+                          <select  class="form-control" aria-describedby="sizing-addon7" name="group">
+				  <option value="{{ .Hosts.Groups.Id }}"> {{ .Hosts.Groups.Gname }}</option>
 				  {{ range .Groups }}
 				  <option value="{{ .Id }}">{{ .Gname }} </option>
 				  {{ end }}
@@ -80,13 +71,13 @@
 				var passv = $("input[name='pass']").val()
 				var pass2v = $("input[name='pass2']").val()
 				var portv = $("input[name='port']").val()
-				var groupv = $("#gname").val()
+				var groupv = $("select[name='group']").val()
 				$.ajax({
-					url: '/host/add',
+					url: '/host/edit/{{.Hosts.Id}}',
 					type: 'post',
 					async: 'true',
 					data: {hostname: host, ipaddr: ip, user: userv, pass:passv, pass2:pass2v,port: portv, group:groupv},
-					timeout: 5000,
+					timeout:5000,
 					dataType:'json',   
 					beforeSend:function(xhr){
 						console.log(xhr)

@@ -34,6 +34,6 @@
       <div class="container-fluid">
           {{ .LayoutContent }}
       </div>
-      <div class='col-sm-12 text-info bg-color-white padding-tb-15 text-center'>Steven Lu</div>
+      <div class='col-sm-12 text-info bg-color-white padding-tb-15 text-center'>Gosshtool</div>
   </body>
 </html>

@@ -43,6 +43,24 @@ func (this *BaseController) getClientIp() string {
 	return s[0]
 }
 
+// 重定向
+func (self *BaseController) redirect(url string) {
+	self.Redirect(url, 302)
+	self.StopRun()
+}
+
+//ajax返回 列表
+func (self *BaseController) ajaxList(msg interface{}, msgno int, count int64, data interface{}) {
+	out := make(map[string]interface{})
+	out["code"] = msgno
+	out["msg"] = msg
+	out["count"] = count
+	out["data"] = data
+	self.Data["json"] = out
+	self.ServeJSON()
+	self.StopRun()
+}
+
 type MainController struct {
 	BaseController
 }

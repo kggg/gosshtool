@@ -40,6 +40,21 @@ func FindHostByName(str string) (Hostinfo, error) {
 	return hostinfo, err
 }
 
+func FindHostById(id int) (Hostinfo, error) {
+	o := orm.NewOrm()
+	var hostinfo Hostinfo
+	err := o.QueryTable("hostinfo").Filter("Id", id).RelatedSel("Groups").One(&hostinfo)
+	return hostinfo, err
+}
+
+func FindHostByGroupname(gname string) ([]HostAll, error) {
+	var hostinfo []HostAll
+	o := orm.NewOrm()
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, groups.gname from hostinfo left join groups on groups.id=hostinfo.groups_id where groups.gname=?"
+	_, err := o.Raw(sql, gname).QueryRows(&hostinfo)
+	return hostinfo, err
+}
+
 func FindHostByIp(str string) (Hostinfo, error) {
 	o := orm.NewOrm()
 	var hostinfo Hostinfo
@@ -47,9 +62,9 @@ func FindHostByIp(str string) (Hostinfo, error) {
 	return hostinfo, err
 }
 
-func AddHost(name, ip, user, pass string, port int, group string) (int64, error) {
+func AddHost(name, ip, user, pass string, port int, group int) (int64, error) {
 	o := orm.NewOrm()
-	sql := "insert into hostinfo (name, ip, user, pass,port,groups) values( ?, ?, ?, ?,?,?)"
+	sql := "insert into hostinfo (name, ip, user, pass,port,groups_id) values( ?, ?, ?, ?,?,?)"
 	res, err := o.Raw(sql, name, ip, user, pass, port, group).Exec()
 	if nil != err {
 		return 0, err
@@ -59,10 +74,10 @@ func AddHost(name, ip, user, pass string, port int, group string) (int64, error)
 
 }
 
-func UpdateHost(name, ip, user, pass string, port int, group string, id int) (int64, error) {
+func EditHost(name, ip, user string, port int, group int, id int) (int64, error) {
 	o := orm.NewOrm()
-	sql := "update hostinfo  set name=?,ipaddr=?, user=?, pass=?,port=?, groups=? where id=?"
-	res, err := o.Raw(sql, name, ip, user, pass, port, group, id).Exec()
+	sql := "update hostinfo  set name=?,ip=?, user=?,port=?, groups_id=? where id=?"
+	res, err := o.Raw(sql, name, ip, user, port, group, id).Exec()
 	if nil != err {
 		return 0, err
 	} else {
