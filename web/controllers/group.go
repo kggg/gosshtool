@@ -108,7 +108,7 @@ func (c *GroupController) Execute() {
 		if cc == "" {
 			c.Resp(false, "the command empty")
 		}
-		var result = []map[string]interface{}{}
+		var result = make([]map[string]interface{}, 0, len(groups))
 		var wg sync.WaitGroup
 		for _, hostname := range groups {
 			wg.Add(1)
@@ -125,8 +125,8 @@ func (c *GroupController) Execute() {
 				result = append(result, out)
 				wg.Done()
 			}(hostname.Ip, hostname.User, hostname.Pass, hostname.Port, hostname.Name)
-			wg.Wait()
 		}
+		wg.Wait()
 		c.Data["json"] = result
 		c.ServeJSON()
 	}
