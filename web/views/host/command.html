@@ -17,11 +17,11 @@
 	                    <div class="input-group">
 		              <input type="text" class="form-control" placeholder="输入命令..." id="command">
 			      <span class="input-group-btn">
-			        <button class="btn btn-success" type="button" id="btn1">Go!</button>
+			        <button class="btn btn-primary" type="button" id="btn1">Go!</button>
 		              </span>
 			    </div><!-- /input-group -->
 			    <div class="clearfix" style="margin-top: 10px;"></div>
-			    <p class="alert alert-warning">在输入框中输入Linux shell命令，<br>以下是执行结果:</p>
+			    <p class="alert alert-info">在输入框中输入Linux shell命令，<br>以下是执行结果:</p>
 		           </div><!-- /.col-lg-6 -->
                           <div class="col-md-offset-4 col-md-2">
                                   <div class="panel panel-primary">
@@ -36,7 +36,7 @@
                                   </div>
                           </div>			   
 			   <div class="col-md-12">
-				 <div id="showinfo" class="alert alert-info">
+				 <div id="showinfo">
 				 </div>
 			   </div>
 			 </div>
@@ -47,25 +47,25 @@
 <script>
 $(document).ready(function(){
      $("#btn1").click(function(){
- 	 var cmd = $("#command").val();
+ 	 var cmd = $.trim($("#command").val());
              $.ajax({
                 url:'/host/command/{{ .Hosts.Name }}',
-                type:'POST', //GET
-                async:true,    //或false,是否异步
+                type:'POST', 
+                async:true,  
                 data:{
                    command: cmd
                 },
                 timeout:15000,    //超时时间
                 dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
                 beforeSend:function(xhr){
-			if(cmd.length == 0){
-				$("#showinfo").empty();
-				$("#showinfo").append("can not empty")
-			}
-                   console.log('发送前')
+			$("#showinfo").empty();
+			$("#showinfo").addClass("alert alert-info")
+		        $("#showinfo").append("Loading......")
                 },
                 success:function(data){
                       $("#showinfo").empty();
+		      $("#showinfo").addClass("alert alert-info")
+
 			var b
 			b = "<pre>"
                         b += data.Result
@@ -88,7 +88,4 @@ $(document).ready(function(){
 
 });
 
-function line2br(text){
-	  return text.split("\n").join("<br />");
-}
 </script>

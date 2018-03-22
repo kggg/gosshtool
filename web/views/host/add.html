@@ -74,13 +74,13 @@
 	<script>
 		$(document).ready(function(){
 			$("#btn1").click(function(){
-				var host = $("input[name='hostname']").val()
-				var ip = $("input[name='ipaddr']").val()
-				var userv = $("input[name='user']").val()
-				var passv = $("input[name='pass']").val()
-				var pass2v = $("input[name='pass2']").val()
-				var portv = $("input[name='port']").val()
-				var groupv = $("#gname").val()
+				var host = $.trim($("input[name='hostname']").val())
+				var ip = $.trim($("input[name='ipaddr']").val())
+				var userv = $.trim($("input[name='user']").val())
+				var passv = $.trim($("input[name='pass']").val())
+				var pass2v = $.trim($("input[name='pass2']").val())
+				var portv = $.trim($("input[name='port']").val())
+				var groupv = $.trim($("#gname").val())
 				$.ajax({
 					url: '/host/add',
 					type: 'post',

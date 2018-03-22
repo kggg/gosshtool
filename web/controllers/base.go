@@ -18,6 +18,7 @@ func (c *BaseController) Prepare() {
 			}
 		c.Data["Username"] = username
 	*/
+	//c.Layout = "layout/layui.tpl"
 	c.Layout = "layout/main.tpl"
 
 }

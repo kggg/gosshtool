@@ -18,6 +18,29 @@ type GroupController struct {
 func (c *GroupController) Get() {
 	groups, err := models.FindAllGroups()
 	c.CheckErr(err, "get groups info error")
+	if c.isPost() {
+		group := strings.TrimSpace(c.GetString("gname"))
+		info := c.GetString("info")
+		gid, _ := c.GetInt("id")
+
+		valid := validation.Validation{}
+		var groupv = validate.Groups{group, info}
+		b, err := valid.Valid(&groupv)
+		if err != nil {
+			c.Resp(false, err.Error()+"valid groups info error")
+		}
+		if !b {
+			for _, err := range valid.Errors {
+				c.Resp(false, err.Key+" validation error: "+err.Message)
+			}
+		}
+		_, err = models.EditGroups(group, info, gid)
+		if err == nil {
+			c.Resp(true, "编辑组名成功")
+		} else {
+			c.Resp(false, "编辑组名失败")
+		}
+	}
 	c.Data["Title"] = "组别列表"
 	c.Data["Groups"] = groups
 	c.TplName = "group/index.html"
@@ -55,6 +78,7 @@ func (c *GroupController) AddGroups() {
 	c.TplName = "group/add.html"
 }
 
+/*
 func (c *GroupController) EditGroups() {
 	id := c.Ctx.Input.Param(":id")
 	bid, err := strconv.Atoi(id)
@@ -87,6 +111,7 @@ func (c *GroupController) EditGroups() {
 	c.Data["Groups"] = groupinfo
 	c.TplName = "group/edit.html"
 }
+*/
 
 func (c *GroupController) DeleteGroups() {
 	id := c.Ctx.Input.Param(":id")
@@ -119,8 +144,8 @@ func (c *GroupController) Execute() {
 				client := sshclient.New(ip, user, decryptPass, port, name)
 				res, err := client.Exec(cc)
 				c.CheckErr(err, "execute remote cmd error")
-				out["ip"] = hostname.Ip
-				out["hostname"] = hostname.Name
+				out["ip"] = ip
+				out["hostname"] = name
 				out["res"] = string(res)
 				result = append(result, out)
 				wg.Done()

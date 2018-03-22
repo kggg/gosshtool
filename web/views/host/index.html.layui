@@ -1,0 +1,52 @@
+<div class="layui-row">
+  <div class="layui-col-md-12">
+    <span class="layui-breadcrumb">
+	    <a href="/">首页 </a>
+       <a href="/host">主机</a>
+       <a class="active">主机列表</a>
+    </span> 
+    <ul class="layui-nav layui-tab">
+      <li class="active"><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
+      <li><a href="/host/add"><i class="glyphicon glyphicon-plus"> </i> 新增主机</a></li>
+    
+    </ul>
+   </div>
+</div>
+<div class="clearfix" style="margin-bottom: 10px;"></div>
+<div class="row">
+  <div class="col-md-12">
+  <table class="table table-hover table-striped table-bordered">
+	  <tr><th>主机名</th><th>IP</th><th>用户名</th><th>密码</th><th>端口</th><th>组别</th><th>操作</th></tr>
+    {{ range .Hosts }}
+       <tr><td><a href="/host/command/{{ .Name }}">{{ .Name }}</a></td>
+           <td>{{ .Ip }}</td><td>{{ .User }}</td><td>{{ .Pass }}</td>
+           <td>{{ .Port }}</td>
+	   <td>{{ .Gname }}</td>
+           <td>
+               <div class="btn-group">
+		       <a href="/host/edit/{{.Id }}" class="btn btn-info"><i class="glyphicon glyphicon-edit"> </i>编辑</a>
+                 <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-config"> </i>配置</button>
+		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-info" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
+                  <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                     <div class="modal-dialog modal-sm" role="document">
+                       <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="form-group">
+                              确定删除吗?
+                            </div>
+                        </div>
+                       <div class="modal-footer">
+                         <form method="post" action="/host/delete/{{ .Id }}">
+                           <button type="button" class="btn btn-default" data-dismiss="modal"> 取消</button>
+                           <button type="submit" class="btn btn-primary">删除</button>
+                         </form>
+                       </div>
+                    </div>
+                 </div>		 
+               </div>
+           </td>
+       </tr>
+    {{end}}
+  </table>
+  </div>
+</div>

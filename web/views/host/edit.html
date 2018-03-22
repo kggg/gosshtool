@@ -20,7 +20,7 @@
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
 			<div id="showinfo"></div>
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
-			<form action="/host/edit/{{ .Hosts.Id }}" method="post" class="">
+			<form action="/host/edit/{{ .Hosts.Id }}" method="post" class="form-horizontal">
 			<div class="input-group">
                           <span class="input-group-addon" id="sizing-addon1">主机名</span>
 			  <input type="text" class="form-control" aria-describedby="sizing-addon1" name="hostname" value="{{ .Hosts.Name}}">
@@ -45,8 +45,7 @@
                           <span class="input-group-addon" id="sizing-addon7">组别</span>
                           <select  class="form-control" aria-describedby="sizing-addon7" name="group">
 				  <option value="{{ .Hosts.Groups.Id }}"> {{ .Hosts.Groups.Gname }}</option>
-				  {{ range .Groups }}
-				  <option value="{{ .Id }}">{{ .Gname }} </option>
+				  {{ range .Groups }}<option value="{{ .Id }}">{{ .Gname }} </option>
 				  {{ end }}
 
 			  </select>
@@ -59,24 +58,31 @@
 
               </div>
 	</div>
-
+        <span id='myModal' class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+		<div class="modal-dialog modal-sm" role="document"> 
+			<div class="modal-content">
+				<div class="modal-body">
+			 编辑成功 
+				</div>
+			</div>
+	        </div>
+	</span>
 </div>
 
 	<script>
 		$(document).ready(function(){
 			$("#btn1").click(function(){
 				var host = $("input[name='hostname']").val()
-				var ip = $("input[name='ipaddr']").val()
-				var userv = $("input[name='user']").val()
-				var passv = $("input[name='pass']").val()
-				var pass2v = $("input[name='pass2']").val()
-				var portv = $("input[name='port']").val()
-				var groupv = $("select[name='group']").val()
+				host = $.trim(host);
+				var ip = $.trim($("input[name='ipaddr']").val())
+				var userv = $.trim($("input[name='user']").val())
+				var portv = $.trim($("input[name='port']").val())
+				var groupv = $.trim($("select[name='group']").val())
 				$.ajax({
 					url: '/host/edit/{{.Hosts.Id}}',
 					type: 'post',
 					async: 'true',
-					data: {hostname: host, ipaddr: ip, user: userv, pass:passv, pass2:pass2v,port: portv, group:groupv},
+					data: {hostname: host, ipaddr: ip, user: userv, port: portv, group:groupv},
 					timeout:5000,
 					dataType:'json',   
 					beforeSend:function(xhr){
@@ -84,12 +90,8 @@
 						console.log('发送前')
 					},
 					success: function(data){
-						console.log(data.status)
 						if(data.status){
-					                $("#showinfo").empty();
-						        $("#showinfo").removeClass("alert-danger");
-						        $("#showinfo").addClass("alert alert-success");
-							$("#showinfo").append(data.info);
+							layer.msg("编辑主机成功", {icon: 1});
 							setTimeout(function(){ $(window).attr('location','/host'); }, 2000);
 						}
 					        else{

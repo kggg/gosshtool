@@ -16,7 +16,40 @@ type HostController struct {
 func (c *HostController) Get() {
 	hostinfo, err := models.FindAllHostinfo()
 	c.CheckErr(err, "get hostinfo error")
+	groups, err := models.FindAllGroups()
+	c.CheckErr(err, "find groups error")
+	if c.isPost() {
+		hid, _ := c.GetInt("id")
+		hostname := strings.TrimSpace(c.GetString("hostname"))
+		user := strings.TrimSpace(c.GetString("user"))
+		ipaddr := strings.TrimSpace(c.GetString("ipaddr"))
+		port := strings.TrimSpace(c.GetString("port"))
+		group := strings.TrimSpace(c.GetString("group"))
+
+		valid := validation.Validation{}
+		var hostinfo = validate.HostEdit{hostname, ipaddr, user, port, group}
+		b, err := valid.Valid(&hostinfo)
+		if err != nil {
+			c.Resp(false, err.Error()+"valid hostinfo error")
+		}
+		if !b {
+			for _, err := range valid.Errors {
+				c.Resp(false, err.Key+" validation error: "+err.Message)
+			}
+		}
+		iport, err := strconv.Atoi(port)
+		c.CheckErr(err, "port to int error")
+		igroup, err := strconv.Atoi(group)
+		c.CheckErr(err, "groupid to int error")
+		_, err = models.EditHost(hostname, ipaddr, user, iport, igroup, hid)
+		if err == nil {
+			c.Resp(true, "编辑主机成功")
+		} else {
+			c.Resp(false, "修改失败")
+		}
+	}
 	c.Data["Title"] = "主机列表"
+	c.Data["Groups"] = groups
 	c.Data["Hosts"] = hostinfo
 	c.TplName = "host/index.html"
 }
@@ -66,6 +99,7 @@ func (c *HostController) AddHost() {
 	c.TplName = "host/add.html"
 }
 
+/*
 func (c *HostController) EditHost() {
 	id := c.Ctx.Input.Param(":id")
 	bid, err := strconv.Atoi(id)
@@ -108,6 +142,7 @@ func (c *HostController) EditHost() {
 	c.Data["Hosts"] = hostinfo
 	c.TplName = "host/edit.html"
 }
+*/
 
 func (c *HostController) DelHost() {
 	id := c.Ctx.Input.Param(":id")
