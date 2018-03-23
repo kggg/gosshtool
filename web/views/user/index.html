@@ -2,12 +2,12 @@
   <div class="col-md-12">
     <ol class="breadcrumb">
 	    <li><a href="/"><i class="glyphicon glyphicon-home"></i> </a></li>
-       <li><a href="/group">组别</a></li>
-       <li class="active">组别列表</li>
+       <li><a href="/user">用户</a></li>
+       <li class="active">用户列表</li>
     </ol> 
     <ul class="nav nav-tabs">
-      <li class="active"><a href="/group"><i class="glyphicon glyphicon-list"> </i> 组别列表</a></li>
-      <li><a href="/group/add"><i class="glyphicon glyphicon-plus"> </i> 新增组别</a></li>
+      <li class="active"><a href="/user"><i class="glyphicon glyphicon-list"> </i> 用户列表</a></li>
+      <li><a href="/user/add"><i class="glyphicon glyphicon-plus"> </i> 新增用户</a></li>
     
     </ul>
    </div>
@@ -15,17 +15,17 @@
 <div class="clearfix" style="margin-bottom: 10px;"></div>
 <div class="row">
   <div class="col-md-12">
-  <table id="grouptable" class="table table-hover table-striped table-bordered">
+  <table id="usertable" class="table table-hover table-striped table-bordered">
 	  <thead>
-	  <tr><th>组别名称</th><th>组别简介</th><th>操作</th></tr>
+		  <tr><th>用户名</th><th>Email</th><th>权限</th><th>操作</th></tr>
 	  </thead>
 	  <tbody>
-    {{ range .Groups }}
-       <tr><td><a href="/group/command/{{ .Gname }}">{{ .Gname }}</a></td>
-	   <td>{{ .Info }}</td>
+    {{ range .Users }}
+       <tr><td>{{ .Name }}</td>
+	   <td>{{ .Email }}</td>
+	   <td>{{ .Rights }}</td>
            <td>
-		   <button class="btn btn-info" onclick="return editgroup({{.Id}}, {{.Gname}}, {{.Info}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
-                 <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-config"> </i>配置</button>
+		   <button class="btn btn-info" onclick="return editgroup({{.Id}}, {{.Name}}, {{.Email}},{{.Rights}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
 		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-danger" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
                   <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                      <div class="modal-dialog modal-sm" role="document">
@@ -36,7 +36,7 @@
                             </div>
                         </div>
                        <div class="modal-footer">
-                         <form method="post" action="/group/delete/{{ .Id }}">
+                         <form method="post" action="/user/delete/{{ .Id }}">
                            <button type="button" class="btn btn-default" data-dismiss="modal"> 取消</button>
                            <button type="submit" class="btn btn-primary">删除</button>
                          </form>
@@ -55,7 +55,7 @@
 <script>
 
 	$(document).ready(function() {
-              $('#grouptable').DataTable();
+              $('#usertable').DataTable();
 	});
 
         function editgroup(id, gname, info){

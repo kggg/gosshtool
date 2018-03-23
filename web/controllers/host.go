@@ -10,7 +10,7 @@ import (
 )
 
 type HostController struct {
-	BaseController
+	FrontController
 }
 
 func (c *HostController) Get() {

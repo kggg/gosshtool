@@ -2,25 +2,11 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	//"testblog/models"
 	"strings"
 )
 
 type BaseController struct {
 	beego.Controller
-}
-
-func (c *BaseController) Prepare() {
-	/*
-			username := c.GetSession("username")
-			if username == false || username == nil {
-				c.Redirect("/login", 302)
-			}
-		c.Data["Username"] = username
-	*/
-	//c.Layout = "layout/layui.tpl"
-	c.Layout = "layout/main.tpl"
-
 }
 
 func (this *BaseController) Resp(status bool, str interface{}) {
@@ -60,13 +46,4 @@ func (self *BaseController) ajaxList(msg interface{}, msgno int, count int64, da
 	self.Data["json"] = out
 	self.ServeJSON()
 	self.StopRun()
-}
-
-type MainController struct {
-	BaseController
-}
-
-func (c *MainController) Get() {
-	c.Data["Title"] = "主页"
-	c.TplName = "index.tpl"
 }

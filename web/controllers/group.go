@@ -12,7 +12,7 @@ import (
 )
 
 type GroupController struct {
-	BaseController
+	FrontController
 }
 
 func (c *GroupController) Get() {

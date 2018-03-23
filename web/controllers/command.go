@@ -7,7 +7,7 @@ import (
 )
 
 type CommandController struct {
-	BaseController
+	FrontController
 }
 
 func (c *CommandController) Execute() {

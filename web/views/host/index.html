@@ -29,7 +29,7 @@
                <div class="btn-group">
 		       <button class="btn btn-info"  onclick="return edithost({{.Id}}, {{.Name}}, {{.Ip}},{{.User}},{{.Port}},{{.Gname}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
                  <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-config"> </i>配置</button>
-		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-info" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
+		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-danger" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
                   <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                      <div class="modal-dialog modal-sm" role="document">
                        <div class="modal-content">

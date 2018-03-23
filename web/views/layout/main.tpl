@@ -13,7 +13,7 @@
   <script src="/static/layer/layer.js"></script>
   </head>
 
-  <nav class="navbar navbar-default  navbar-inverse">
+  <nav class="navbar navbar-default navbar-inverse">
       <div class="container-fluid">
             <div class="navbar-header">
                     <a href='/' class="navbar-brand active"><span class="text-primary">Gosshtool</span></a>
@@ -24,11 +24,14 @@
               <ul class="nav navbar-nav navbar-inverse">
                  <li class="active"><a href="/"><i class="glyphicon glyphicon-home"> </i><span class="sr-only">(current)</span></a></li>
               </ul>
-              <ul class="nav navbar-nav navbar-right">
+              <ul class="nav navbar-nav navbar-inverse">
                  <li><a href="/host"><i class="glyphicon glyphicon-object-align-vertical"></i> 主机</a></li>
                  <li><a href="/group">组别</a></li>
                  <li><a href="/config"><i class="glyphicon glyphicon-cog"></i> 配置</a></li>
-                 <li><a href="/person"><i class="glyphicon glyphicon-user"></i> 人个信息</a></li>
+              </ul>
+              <ul  class="nav navbar-nav navbar-right">
+                        <li><a href="/user"><i class="glyphicon glyphicon-user"></i> 用户</a></li>
+                        <li><a href="/logout"><i class="glyphicon glyphicon-log-out"></i> 退出</a></li>
               </ul>
             </div><!-- /.navbar-collapse -->
        </div><!-- /.container-fluid -->
