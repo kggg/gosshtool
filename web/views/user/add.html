@@ -1,0 +1,99 @@
+<div class="row">
+    <div class="col-md-12">
+       <ol class="breadcrumb">
+            <li><a href="/"><i class="glyphicon glyphicon-home"></i> </a></li>
+            <li><a href="/user">用户</a></li>
+            <li class="active">用户列表</li>
+       </ol>
+       <ul class="nav nav-tabs">
+           <li><a href="/user"><i class="glyphicon glyphicon-list"> </i> 用户列表</a></li>
+           <li class="active"><a href="/user/add"><i class="glyphicon glyphicon-plus"> </i> 新增用户</a></li>
+           <li><a href="/user/rights"><i class="glyphicon glyphicon-list"> </i> 权限列表</a></li>
+       </ul>
+   </div>
+</div>
+
+<div class="clearfix" style="margin-bottom: 10px;"></div>
+
+<div class="row">
+	<div class="col-sm-12">
+            <div class="col-sm-12 border-grey-1 border-radius-3">
+              <div class="clearfix" style="margin-bottom: 10px;"></div>
+	   <form action="/host/add" method="post" class="">
+		   <div class="form-group col-sm-12">
+			   <label class="control-label col-sm-1" for="username">用户名</label>
+			   <div class="col-sm-9">
+				   <input type="text" class="form-control" name="username">
+			   </div>
+		   </div>
+                   <div class="form-group col-sm-12">
+                           <label class="control-label col-sm-1" for="password">密码</label>
+                           <div class="col-sm-9">
+                                   <input type="password" class="form-control" name="password">
+                           </div>
+                   </div>
+                   <div class="form-group col-sm-12">
+                           <label class="control-label col-sm-1" for="password2">确认密码</label>
+                           <div class="col-sm-9">
+                                   <input type="password" class="form-control" name="password2">
+                           </div>
+                   </div>
+                   <div class="form-group col-sm-12">
+			   <label class="control-label col-sm-1" for="email">Email</label>
+                           <div class="col-sm-9">
+                                   <input type="text" class="form-control" name="email">
+                           </div>
+                   </div>		   
+                   <div class="form-group col-sm-12">
+			   <div class=" col-sm-10">
+			   <button class="btn btn-info pull-left" type="reset">取消</button>
+			   <button id="btn1" class="btn btn-info pull-right" type="submit">保存</button>
+			   </div>
+                   </div>		   
+	   </form>
+            <div class="clearfix" style="margin-bottom: 10px;"></div>
+	    </div>
+	</div>
+</div>
+
+
+
+
+        <script>
+                $(document).ready(function(){
+                        $("#btn1").click(function(){
+                                var name = $.trim($("input[name='username']").val())
+                                var pass = $.trim($("input[name='password']").val())
+                                var pass2 = $.trim($("input[name='password2']").val())
+                                var email = $.trim($("input[name='email']").val())
+                                $.ajax({
+                                        url: '/user/add',
+                                        type: 'post',
+                                        async: 'true',
+                                        data: {username: name, password: pass, password2: pass2, email: email},
+                                        timeout: 5000,
+                                        dataType:'json',
+                                        beforeSend:function(xhr){
+                                                console.log(xhr)
+                                                console.log('发送前')
+                                        },
+                                        success: function(data){
+                                                console.log(data.status)
+                                                if(data.status){
+							layer.msg(data.info, {icon: 1});
+                                                        setTimeout(function(){ $(window).attr('location','/user'); }, 2000);
+                                                }
+                                                else{
+							layer.msg(data.info, {icon:2});
+                                                }
+                                        },
+                                        error:function(xhr,textStatus){
+						layer.msg(xhr+"; "+textStatus, {icon:2});
+                                                console.log(xhr)
+                                                console.log(textStatus)
+                                        },
+                                });
+				return false;
+                        });
+                });
+        </script>

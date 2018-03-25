@@ -8,6 +8,7 @@
     <ul class="nav nav-tabs">
       <li class="active"><a href="/user"><i class="glyphicon glyphicon-list"> </i> 用户列表</a></li>
       <li><a href="/user/add"><i class="glyphicon glyphicon-plus"> </i> 新增用户</a></li>
+           <li><a href="/user/rights"><i class="glyphicon glyphicon-list"> </i> 权限列表</a></li>
     
     </ul>
    </div>
@@ -21,28 +22,12 @@
 	  </thead>
 	  <tbody>
     {{ range .Users }}
-       <tr><td>{{ .Name }}</td>
+       <tr><td>{{ .Name}}</td>
 	   <td>{{ .Email }}</td>
-	   <td>{{ .Rights }}</td>
+	   <td>{{ .Rights.Rname }}</td>
            <td>
-		   <button class="btn btn-info" onclick="return editgroup({{.Id}}, {{.Name}}, {{.Email}},{{.Rights}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
-		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-danger" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
-                  <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                     <div class="modal-dialog modal-sm" role="document">
-                       <div class="modal-content">
-                        <div class="modal-body">
-                            <div class="form-group">
-                              确定删除吗?
-                            </div>
-                        </div>
-                       <div class="modal-footer">
-                         <form method="post" action="/user/delete/{{ .Id }}">
-                           <button type="button" class="btn btn-default" data-dismiss="modal"> 取消</button>
-                           <button type="submit" class="btn btn-primary">删除</button>
-                         </form>
-                       </div>
-                    </div>
-                 </div>		 
+		   <button class="btn btn-info" onclick="return edituser({{.Id}}, {{.Name}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
+		   <button  class="btn btn-danger" onclick="return deleteuser({{.Id}})"><i class="glyphicon glyphicon-remove"> </i>删除</button>
            </td>
        </tr>
     {{end}}
@@ -58,45 +43,39 @@
               $('#usertable').DataTable();
 	});
 
-        function editgroup(id, gname, info){
+        function deleteuser(id){
+             layer.confirm("确认要删除吗?",{
+	                 btn : [ '确定', '取消' ]//按钮
+	             }, function(index) {
+	                 layer.close(index);
+			     $.post('/user/delete/'+ id, function(data){
+				     if(data.status){
+				         layer.msg("删除成功",{icon: 1});
+					     setTimeout(function(){ $(window).attr('location','/user'); }, 2000);    
+				     }else{
+					     layer.msg("删除失败", {icon: 2});
+				     }
+			     });
+		     }
+
+	     );
+	}
+
+        function edituser(id, name){
 		layer.open({
-			type: 1,
-			title: "编辑组别信息",
+			type: 2,
+			title: "编辑用户 ["+name+"] 信息",
 			skin: 'layui-layer-lan',
-			area: ['600px','220px'],
+			area: ['600px','280px'],
 			btn: ['取消','保存'],
 			btn2: function(index, layero){
-				var gname = $("input[name='gname']").val();
-				var info = $("input[name='info']").val();
-				$.ajax({
-					url: '/group',
-					type: 'post',
-					async: 'true',
-					data: {id: id, gname: gname, info: info},
-					timeout: 5000,
-					dataType:'json',
-					beforeSend:function(xhr){
-						console.log('发送前')
-					},
-					success: function(data){
-						if(data.status){
-							layer.msg("编辑组别成功", {icon: 1});
-						     //setTimeout(function(){ window.location.reload(); }, 2000);
-						     setTimeout(function(){ $(window).attr('location','/group'); }, 2000);
-						}else{
-							layer.msg(data.info, {icon:2},);
-						}
-					},
-					error:function(xhr,textStatus){
-						layer.msg("编辑失败", {icon: 2},);
-						console.log(xhr)
-						console.log(textStatus)
-					},
-				});
-				return false;
-			    
+                            var data = $(layero).find("iframe")[0].contentWindow.EditUser();
+                            if(data){
+                                fun(data);
+                            }
+                            return false;			    
 			},
-			content:'<div class="row"><div class="col-xs-12"> <form action="" method="post"><div class="form-group"><label class="control-label col-xs-2" for="gname">组别名称</label><div class="col-xs-10"><input type="text" class="form-control" name="gname" value="' + gname + '"></div></div><div class="form-group"><label class="control-label col-xs-2" for="info">组别简介</label><div class="col-xs-10"><input type="text" class="form-control" id="info" name="info" value="'+ info + '"></div></div></form></div></div>',
+			content: '/user/edit/' + id,
 		});
 	}
 </script>

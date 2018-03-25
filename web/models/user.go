@@ -9,7 +9,7 @@ type User struct {
 	Name       string
 	Pass       string
 	Email      string
-	Rights     string
+	Rights     *Rights `orm:"rel(fk)"`
 	Created_at string
 }
 
@@ -20,7 +20,7 @@ func init() {
 func FindAllUser() ([]User, error) {
 	o := orm.NewOrm()
 	var user []User
-	_, err := o.QueryTable("user").All(&user)
+	_, err := o.QueryTable("user").RelatedSel("rights").All(&user)
 	return user, err
 }
 
@@ -34,14 +34,14 @@ func FindUserByName(name string) (User, error) {
 func FindUserById(id int) (User, error) {
 	o := orm.NewOrm()
 	var user User
-	err := o.QueryTable("user").Filter("id", id).One(&user)
+	err := o.QueryTable("user").Filter("id", id).RelatedSel("rights").One(&user)
 	return user, err
 }
 
-func AddUser(name, pass, email, right string) (int64, error) {
+func AddUser(name, pass, email string) (int64, error) {
 	o := orm.NewOrm()
-	sql := "insert into user (name, pass,email,rights) values( ?, ?, ?, ?)"
-	res, err := o.Raw(sql, name, pass, email, right).Exec()
+	sql := "insert into user (name, pass,email) values( ?, ?, ?)"
+	res, err := o.Raw(sql, name, pass, email).Exec()
 	if nil != err {
 		return 0, err
 	} else {
@@ -50,10 +50,22 @@ func AddUser(name, pass, email, right string) (int64, error) {
 
 }
 
-func EditUser(name, email, right string, id int) (int64, error) {
+func EditUser(email string, right, id int) (int64, error) {
 	o := orm.NewOrm()
-	sql := "update user  set name=?,email=?,rights=? where id=?"
-	res, err := o.Raw(sql, name, email, right, id).Exec()
+	sql := "update user  set email=?,rights_id=? where id=?"
+	res, err := o.Raw(sql, email, right, id).Exec()
+	if nil != err {
+		return 0, err
+	} else {
+		return res.LastInsertId()
+	}
+
+}
+
+func ChangeUserPass(id int, pass string) (int64, error) {
+	o := orm.NewOrm()
+	sql := "update user set pass=? where id=?"
+	res, err := o.Raw(sql, pass, id).Exec()
 	if nil != err {
 		return 0, err
 	} else {
@@ -69,4 +81,10 @@ func DeleteUser(id int) (int64, error) {
 	} else {
 		return 0, err
 	}
+}
+
+func UserExistCheck(name string) bool {
+	o := orm.NewOrm()
+	exist := o.QueryTable("user").Filter("name", name).Exist()
+	return exist
 }

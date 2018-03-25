@@ -22,13 +22,13 @@
 			<div class="clearfix" style="margin-bottom: 10px;"></div>
 			<form action="/group/edit/{{ .Groups.Id }}" method="post" class="form-horizontal">
 			<div class="form-group">
-                          <label class="control-label col-sm-1" label-for="gname">组别名称</label>
+                          <label class="control-label col-sm-1" for="gname">组别名称</label>
 			  <div class="col-sm-6">
 				  <input type="text" class="form-control" name="gname" value="{{ .Groups.Gname}}">
 			  </div>
 			</div>
 			<div class="form-group">
-                          <label class="control-label col-sm-1" label-for="info">组别简介</label>
+                          <label class="control-label col-sm-1" for="info">组别简介</label>
 			  <div class="col-sm-6">
 				  <input type="text" class="form-control" id="info" name="info" value="{{ .Groups.Info}}">
 			   </div>
