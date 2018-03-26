@@ -86,6 +86,18 @@ func EditHost(name, ip, user string, port int, group int, id int) (int64, error)
 
 }
 
+func ChangeHostPass(pass string, id int) (int64, error) {
+	o := orm.NewOrm()
+	sql := "update hostinfo  set pass=? where id=?"
+	res, err := o.Raw(sql, pass, id).Exec()
+	if nil != err {
+		return 0, err
+	} else {
+		return res.LastInsertId()
+	}
+
+}
+
 func DeleteHost(id int) (int64, error) {
 	o := orm.NewOrm()
 	if num, err := o.Delete(&Hostinfo{Id: id}); err == nil {

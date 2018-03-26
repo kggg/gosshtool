@@ -1,0 +1,72 @@
+<div class="clearfix" style="margin-bottom: 10px;"></div>
+
+<div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-12 border-grey-1 border-radius-3">
+              <div class="clearfix" style="margin-bottom: 10px;"></div>
+           <form action="" method="post" class="">
+                   <div class="form-group col-sm-12">
+                           <label class="control-label col-sm-1" for="oldpass">旧密码</label>
+                           <div class="col-sm-9">
+                                   <input type="text" class="form-control" name="oldpass">
+                           </div>
+                   </div>
+                   <div class="form-group col-sm-12">
+                           <label class="control-label col-sm-1" for="newpass">新密码</label>
+                           <div class="col-sm-9">
+                                   <input type="password" class="form-control" name="newpass">
+                           </div>
+                   </div>
+                   <div class="form-group col-sm-12">
+                           <label class="control-label col-sm-1" for="newpass2">确认密码</label>
+                           <div class="col-sm-9">
+                                   <input type="password" class="form-control" name="newpass2">
+                           </div>
+                   </div>
+           </form>
+            <div class="clearfix" style="margin-bottom: 10px;"></div>
+            </div>
+        </div>
+</div>
+
+
+
+
+        <script>
+               function  ChangePass(){
+                                var oldpass = $.trim($("input[name='oldpass']").val())
+                                var newpass = $.trim($("input[name='newpass']").val())
+                                var newpass2 = $.trim($("input[name='newpass2']").val())
+                                $.ajax({
+                                        url: '/user/changepass/' + {{.Id}},
+                                        type: 'post',
+                                        async: 'true',
+                                        data: {oldpass: oldpass, newpass: newpass, newpass2: newpass2},
+                                        timeout: 5000,
+                                        dataType:'json',
+                                        beforeSend:function(xhr){
+                                                console.log(xhr)
+                                                console.log('发送前')
+                                        },
+                                        success: function(data){
+                                             if(data.status){
+                                                   layer.msg("修改成功",{icon:1 });
+                                                   var index = parent.layer.getFrameIndex(window.name);
+                                                   setTimeout(function(){
+                                                           parent.location.href="/user";
+                                                         parent.layer.close(index);
+                                                    }, 1000);
+                                             }else{
+                                                   layer.msg("修改失败; "+data.info, {icon:2});
+                                                   return false;
+                                             }
+                                        },
+                                        error:function(xhr,textStatus){
+                                                layer.msg(xhr+"; "+textStatus, {icon:2});
+                                                console.log(xhr)
+                                                console.log(textStatus)
+                                        },
+                                });
+                                return false;
+                }
+        </script>

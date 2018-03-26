@@ -27,6 +27,7 @@
 	   <td>{{ .Rights.Rname }}</td>
            <td>
 		   <button class="btn btn-info" onclick="return edituser({{.Id}}, {{.Name}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
+		   <button class="btn btn-info" onclick="return changepass({{.Id}}, {{.Name}})">修改密码</button>
 		   <button  class="btn btn-danger" onclick="return deleteuser({{.Id}})"><i class="glyphicon glyphicon-remove"> </i>删除</button>
            </td>
        </tr>
@@ -78,4 +79,22 @@
 			content: '/user/edit/' + id,
 		});
 	}
+
+     function changepass(id, name){
+             layer.open({
+                     type: 2,
+                     title: "修改用户 [" + name + "] 的密码",
+                        skin: 'layui-layer-lan',
+                        area: ['600px','350px'],
+                        btn: ['取消','保存'],
+                        btn2: function(index, layero){
+                            var data = $(layero).find("iframe")[0].contentWindow.ChangePass();
+                            if(data){
+                                fun(data);
+                            }
+                            return false;
+                        },
+                        content: '/user/changepass/' + id,
+                });
+     }
 </script>

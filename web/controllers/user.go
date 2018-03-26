@@ -97,3 +97,38 @@ func (c *UserController) Delete() {
 		c.Resp(true, "success")
 	}
 }
+
+func (c *UserController) ChangePass() {
+	id := c.Ctx.Input.Param(":id")
+	bid, err := strconv.Atoi(id)
+	c.CheckErr(err, "get change user id error with a to i")
+	if c.isPost() {
+		oldpass := strings.TrimSpace(c.GetString("oldpass"))
+		newpass := strings.TrimSpace(c.GetString("newpass"))
+		newpass2 := strings.TrimSpace(c.GetString("newpass2"))
+		if oldpass == "" || newpass == "" || newpass2 == "" {
+			c.Resp(false, "密码不能为空")
+		}
+		if len(oldpass) > 50 || len(newpass) > 50 || len(newpass2) > 50 {
+			c.Resp(false, "密码长度不能超过50字符")
+		}
+		if newpass != newpass2 {
+			c.Resp(false, "新密码与确认密码不一致")
+		}
+		userinfo, err := models.FindUserById(bid)
+		c.CheckErr(err, "get user info by id error")
+		encryptoldpass := com.Md5(oldpass)
+		if encryptoldpass != userinfo.Pass {
+			c.Resp(false, "旧密码不正确")
+		}
+		encryptPass := com.Md5(newpass)
+		_, err = models.ChangeUserPass(encryptPass, bid)
+		if err != nil {
+			c.Resp(false, "修改密码入库失败")
+		}
+		c.Resp(true, "修改密码成功")
+	}
+	c.Data["Id"] = bid
+	c.TplName = "user/changepass.html"
+	c.Layout = "layout/layer.tpl"
+}

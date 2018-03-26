@@ -13,11 +13,13 @@ func init() {
 	beego.Router("/user", &controllers.UserController{})
 	beego.Router("/user/add", &controllers.UserController{}, "*:Add")
 	beego.Router("/user/edit/:id([0-9]+)", &controllers.UserController{}, "get,post:Edit")
-	beego.Router("/user/delete/:id([0-9]+)", &controllers.UserController{}, "*:Delete")
+	beego.Router("/user/delete/:id([0-9]+)", &controllers.UserController{}, "post:Delete")
+	beego.Router("/user/changepass/:id([0-9]+)", &controllers.UserController{}, "get,post:ChangePass")
 
 	beego.Router("/host", &controllers.HostController{}, "get,post:Get")
 	beego.Router("/host/add", &controllers.HostController{}, "get,post:AddHost")
 	beego.Router("/host/delete/:id([0-9]+)", &controllers.HostController{}, "post:DelHost")
+	beego.Router("/host/changepass/:id([0-9]+)", &controllers.HostController{}, "get,post:ChangePass")
 	beego.Router("/host/command/:hostname", &controllers.CommandController{}, "get,post:Execute")
 
 	beego.Router("/group", &controllers.GroupController{}, "get,post:Get")

@@ -26,9 +26,9 @@
            <td>{{ .Port }}</td>
 	   <td>{{ .Gname }}</td>
            <td>
-               <div class="btn-group">
 		       <button class="btn btn-info"  onclick="return edithost({{.Id}}, {{.Name}}, {{.Ip}},{{.User}},{{.Port}},{{.Gname}})"><i class="glyphicon glyphicon-edit"> </i>编辑</button>
                  <button type="button" class="btn btn-info"><i class="glyphicon glyphicon-config"> </i>配置</button>
+		  <button class="btn btn-info" onclick="return changepass({{.Id}}, {{.Name}})">修改密码</button>
 		 <button type="button" href="#myModal{{ .Id }}" class="btn btn-danger" data-toggle="modal"><i class="glyphicon glyphicon-remove"> </i>删除</button>
                   <div class="modal fade" id="myModal{{ .Id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                      <div class="modal-dialog modal-sm" role="document">
@@ -46,7 +46,6 @@
                        </div>
                     </div>
                  </div>		 
-               </div>
            </td>
        </tr>
     {{end}}
@@ -88,7 +87,7 @@
                                         success: function(data){
                                                 if(data.status){
                                                         layer.msg("编辑组别成功", {icon: 1});
-                                                     setTimeout(function(){ window.location.reload(); }, 2000);
+                                                     setTimeout(function(){ window.location.reload(); }, 1000);
                                                 }else{
                                                         layer.msg(data.info, {icon:2},);
                                                 }
@@ -106,4 +105,22 @@
                 });
 	  }
 
+
+     function changepass(id, name){
+	     layer.open({
+		     type: 2,
+		     title: "修改主机名 [" + name + "] 的密码",
+                        skin: 'layui-layer-lan',
+                        area: ['600px','350px'],
+                        btn: ['取消','保存'],
+                        btn2: function(index, layero){
+                            var data = $(layero).find("iframe")[0].contentWindow.ChangePass();
+                            if(data){
+                                fun(data);
+                            }
+                            return false;
+                        },
+                        content: '/host/changepass/' + id,
+                });		     
+     }
 </script>

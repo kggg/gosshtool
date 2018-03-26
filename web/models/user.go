@@ -62,7 +62,7 @@ func EditUser(email string, right, id int) (int64, error) {
 
 }
 
-func ChangeUserPass(id int, pass string) (int64, error) {
+func ChangeUserPass(pass string, id int) (int64, error) {
 	o := orm.NewOrm()
 	sql := "update user set pass=? where id=?"
 	res, err := o.Raw(sql, pass, id).Exec()
