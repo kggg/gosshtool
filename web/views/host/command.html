@@ -15,13 +15,13 @@
 			 <div class="panel-body">
                           <div class="col-md-6">
 	                    <div class="input-group">
-		              <input type="text" class="form-control" placeholder="输入命令..." id="command">
+		              <input  type="text" class="form-control" placeholder="输入命令..." id="command">
 			      <span class="input-group-btn">
 			        <button class="btn btn-primary" type="button" id="btn1">Go!</button>
 		              </span>
 			    </div><!-- /input-group -->
 			    <div class="clearfix" style="margin-top: 10px;"></div>
-			    <p class="alert alert-info">在输入框中输入Linux shell命令，<br>以下是执行结果:</p>
+			    <p class="alert alert-info">在输入框中输入Linux shell命令，按回车键运行<br>以下是执行结果:</p>
 		           </div><!-- /.col-lg-6 -->
                           <div class="col-md-offset-4 col-md-2">
                                   <div class="panel panel-primary">
@@ -46,7 +46,9 @@
 
 <script>
 $(document).ready(function(){
-     $("#btn1").click(function(){
+     //$("#btn1").click(function(){
+     $("#command").on('keypress',function(event){
+	     if(event.keyCode == '13'){
  	 var cmd = $.trim($("#command").val());
              $.ajax({
                 url:'/host/command/{{ .Hosts.Name }}',
@@ -83,7 +85,7 @@ $(document).ready(function(){
                     console.log('结束')
                 }
           })
-	  
+	  }
 	});
 
 });

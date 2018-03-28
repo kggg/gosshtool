@@ -16,8 +16,6 @@ import (
 
 type CONClient struct {
 	SshClient *ssh.Client
-	Module    string
-	Cmd       string
 	Hostname  string
 	Addr      string
 }

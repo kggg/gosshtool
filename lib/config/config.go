@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"gosshtool/lib/db"
+	"gosshtool/web/utils/msgcrypt"
 	"os"
 )
 
@@ -107,7 +108,11 @@ func getHostformMysql(host, user, pass string, port int, dbname string) (map[str
 	sqli := "select * from hostinfo"
 	hostinfo, err := db.FetchRows(dbcon, sqli)
 	for _, v := range hostinfo {
-		hostmap[v["name"]] = HostInfo{Ip: v["ip"], User: v["user"], Pass: v["pass"], Port: 22}
+		dpass, err := msgcrypt.AesDecrypt(v["pass"])
+		if err != nil {
+			return nil, err
+		}
+		hostmap[v["name"]] = HostInfo{Ip: v["ip"], User: v["user"], Pass: dpass, Port: 22}
 	}
 	return hostmap, nil
 }

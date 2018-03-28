@@ -14,8 +14,8 @@ func main() {
 		// execute a command on remote host
 		for name, value := range cmd.Host {
 			wg.Add(1)
-			go func(host, user, pass string, port int, hostname string, module, cmd string) {
-				sshClient := sshclient.New(user, pass, host, port, hostname)
+			go func(ipaddr, user, pass string, port int, hostname string, module, cmd string) {
+				sshClient := sshclient.New(ipaddr, user, pass, port, hostname)
 				err := sshClient.Execute(module, cmd)
 				if err != nil {
 					log.Fatal(err)

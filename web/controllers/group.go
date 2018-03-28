@@ -6,6 +6,7 @@ import (
 	"gosshtool/web/models"
 	"gosshtool/web/utils/msgcrypt"
 	"gosshtool/web/utils/validate"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -143,7 +144,9 @@ func (c *GroupController) Execute() {
 				c.CheckErr(err, "decrypt pass error")
 				client := sshclient.New(ip, user, decryptPass, port, name)
 				res, err := client.Exec(cc)
-				c.CheckErr(err, "execute remote cmd error")
+				if err != nil {
+					log.Println("Error: execute remote cmd, ", err)
+				}
 				out["ip"] = ip
 				out["hostname"] = name
 				out["res"] = string(res)
