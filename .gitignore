@@ -1,4 +1,4 @@
 conf/*
-web/web
-web/web/session
-web/static/layui
+web
+session/*
+static/layui

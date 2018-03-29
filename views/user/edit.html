@@ -1,0 +1,70 @@
+<div class="clearfix" style="margin-bottom: 10px;"></div>
+
+<div class="row">
+	<div class="col-sm-12">
+            <div class="col-sm-12 border-grey-1 border-radius-3">
+              <div class="clearfix" style="margin-bottom: 10px;"></div>
+	   <form action="" method="post" class="">
+                   <div class="form-group col-sm-12">
+			   <label class="control-label col-sm-1" for="email">Email</label>
+                           <div class="col-sm-9">
+				   <input type="text" class="form-control" name="email" value="{{.Userinfo.Email}}">
+                           </div>
+                   </div>		   
+                   <div class="form-group col-sm-12">
+			   <label class="control-label col-sm-1" for="email">权限</label>
+                           <div class="col-sm-9">
+				   <select class="form-control" name="rights">
+					   <option value="{{.Userinfo.Rights.Id}}">{{.Userinfo.Rights.Rname }}</option>
+					   {{ range .Rights }}
+					        <option value="{{.Id}}">{{ .Rname}}</option>
+				          {{end}}
+				   </select>
+                           </div>
+                   </div>		   
+	   </form>
+            <div class="clearfix" style="margin-bottom: 10px;"></div>
+	    </div>
+	</div>
+</div>
+
+
+
+
+        <script>
+               function  EditUser(){
+                                var email = $.trim($("input[name='email']").val())
+                                var rights = $.trim($("select[name='rights']").val())
+                                $.ajax({
+					url: '/user/edit/' + {{ .Userinfo.Id}},
+                                        type: 'post',
+                                        async: 'true',
+                                        data: {email: email, rights: rights},
+                                        timeout: 5000,
+                                        dataType:'json',
+                                        beforeSend:function(xhr){
+                                                console.log(xhr)
+                                                console.log('发送前')
+                                        },
+                                        success: function(data){
+					     if(data.status){	
+                                                   layer.msg("修改成功",{icon:1 });
+                                                   var index = parent.layer.getFrameIndex(window.name);
+                                                   setTimeout(function(){ 
+							   parent.location.href="/user";
+                                                         parent.layer.close(index);
+                                                    }, 2000);
+                                             }else{
+                                                   layer.msg("录入失败"+data.info, {icon:2});
+                                                   return false;
+                                             }						
+                                        },
+                                        error:function(xhr,textStatus){
+						layer.msg(xhr+"; "+textStatus, {icon:2});
+                                                console.log(xhr)
+                                                console.log(textStatus)
+                                        },
+                                });
+				return false;
+                }
+        </script>

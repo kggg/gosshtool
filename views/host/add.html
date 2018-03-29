@@ -1,0 +1,125 @@
+<div class="row">
+  <div class="col-md-12">
+    <ol class="breadcrumb">
+            <li><a href="/"><i class="glyphicon glyphicon-home"></i> </a></li>
+       <li><a href="/host">主机</a></li>
+       <li class="active">新增主机</li>
+    </ol>	  
+    <ul class="nav nav-tabs">
+      <li><a href="/host"><i class="glyphicon glyphicon-list"> </i> 主机列表</a></li>
+      <li class="active"><a href="/host/add"><i class="glyphicon glyphicon-plus"> </i> 新增主机</a></li>
+
+    </ul>
+   </div>
+</div>
+<div class="clearfix" style="margin-bottom: 10px;"></div>
+<div class="row">
+	<div class="col-md-12 col-sm-12">
+		<div class="col-md-10 border-grey-1 border-radius-3">
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+			<div id="showinfo"></div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+		<form action="/host/add" method="post" class="">
+			<div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon1">主机名</span>
+                          <input type="text" class="form-control" aria-describedby="sizing-addon1" name="hostname">
+                        </div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+			<div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon2">IP地址</span>
+                          <input type="text" class="form-control" aria-describedby="sizing-addon2" name="ipaddr">
+                        </div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+			<div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon3">用户名</span>
+                          <input type="text" class="form-control" aria-describedby="sizing-addon3" name="user">
+                        </div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+			<div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon4">密码</span>
+                          <input type="password" class="form-control" aria-describedby="sizing-addon4" name="pass">
+                        </div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+                        <div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon5">确认密码</span>
+                          <input type="password" class="form-control" aria-describedby="sizing-addon5" name="pass2">
+                        </div>
+                        <div class="clearfix" style="margin-bottom: 10px;"></div>			
+			<div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon6">端口</span>
+                          <input type="text" class="form-control" aria-describedby="sizing-addon6" name="port">
+                        </div>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+                        <div class="input-group">
+                          <span class="input-group-addon" id="sizing-addon7">组别</span>
+                          <select  class="form-control" id="gname" aria-describedby="sizing-addon7" name="group">
+				  <option>选择组别</option>
+				  {{ range .Groups }}
+				  <option value="{{ .Id }}">{{ .Gname }} </option>
+				  {{ end }}
+
+			  </select>
+                        </div>
+                        <div class="clearfix" style="margin-bottom: 10px;"></div>			
+			<button class="btn btn-info" type="reset">取消</button>
+			<button id="btn1" class="btn btn-info pull-right" type="button">提交</button>
+		</form>
+			<div class="clearfix" style="margin-bottom: 10px;"></div>
+
+              </div>
+	</div>
+
+</div>
+
+	<script>
+		$(document).ready(function(){
+			$("#btn1").click(function(){
+				var host = $.trim($("input[name='hostname']").val())
+				var ip = $.trim($("input[name='ipaddr']").val())
+				var userv = $.trim($("input[name='user']").val())
+				var passv = $.trim($("input[name='pass']").val())
+				var pass2v = $.trim($("input[name='pass2']").val())
+				var portv = $.trim($("input[name='port']").val())
+				var groupv = $.trim($("#gname").val())
+				$.ajax({
+					url: '/host/add',
+					type: 'post',
+					async: 'true',
+					data: {hostname: host, ipaddr: ip, user: userv, pass:passv, pass2:pass2v,port: portv, group:groupv},
+					timeout: 5000,
+					dataType:'json',   
+					beforeSend:function(xhr){
+						console.log(xhr)
+						console.log('发送前')
+					},
+					success: function(data){
+						console.log(data.status)
+						if(data.status){
+					                $("#showinfo").empty();
+						        $("#showinfo").removeClass("alert-danger");
+						        $("#showinfo").addClass("alert alert-success");
+							$("#showinfo").append(data.info);
+							setTimeout(function(){ $(window).attr('location','/host'); }, 2000);
+						}
+					        else{
+					                $("#showinfo").empty();
+						        $("#showinfo").addClass("alert alert-danger");
+						        var b
+						        b = data.info
+						        $("#showinfo").append(b);
+						}
+					},
+					error:function(xhr,textStatus){
+                                                $("#showinfo").empty();
+						$("#showinfo").addClass("alert alert-danger");
+                                                var b
+                                                b = data.info
+                                                $("#showinfo").append(b);						
+						console.log(xhr)
+						console.log(textStatus)
+					},
+				});
+				return false;
+			});
+		});
+	</script>
