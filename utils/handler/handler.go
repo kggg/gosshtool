@@ -1,4 +1,4 @@
-package funcmap
+package handler
 
 import (
 	"errors"
@@ -49,12 +49,17 @@ func (f Funcs) Call(name string, params ...interface{}) (result []reflect.Value,
 	return
 }
 
+//注册函数
 func (f Funcs) RegisterFunc() {
 	err := f.Bind("cmd", cmd)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = f.Bind("copyfile", copyfile)
+	err = f.Bind("sendfile", cmd)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = f.Bind("getfile", cmd)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +68,7 @@ func (f Funcs) RegisterFunc() {
 
 func Related(com command.Command) error {
 	fn := NewFuncs(3)
-	fn.RegisterFunc(com.Module)
+	fn.RegisterFunc()
 	_, err := fn.Call(com.Module, com)
 	if err != nil {
 		return err

@@ -2,13 +2,13 @@ package main
 
 import (
 	"gosshtool/utils/command"
-	"gosshtool/utils/funcmap"
+	"gosshtool/utils/handler"
 	"log"
 )
 
 func main() {
 	cmd := command.ParseCommand()
-	err := funcmap.Related(cmd)
+	err := handler.Related(cmd)
 	if err != nil {
 		log.Fatal("Error: ", err)
 	}

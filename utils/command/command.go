@@ -23,6 +23,10 @@ func (this *Command) AddHost(h string) {
 		if err != nil {
 			fmt.Errorf("get host error from db: %v\n", err)
 		}
+		if hostinfo.Name == "" {
+			continue
+		}
+
 		this.Host = append(this.Host, hostinfo)
 	}
 	if len(this.Host) < 1 {
