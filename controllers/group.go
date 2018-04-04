@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/astaxie/beego/validation"
-	"gosshtool/lib/sshclient"
 	"gosshtool/models"
 	"gosshtool/utils/msgcrypt"
+	"gosshtool/utils/sshclient"
 	"gosshtool/utils/validate"
 	"log"
 	"strconv"

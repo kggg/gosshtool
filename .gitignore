@@ -1,4 +1,5 @@
 conf/*
 web
+gosshtool
 session/*
 static/layui

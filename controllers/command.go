@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"gosshtool/lib/sshclient"
 	"gosshtool/models"
 	"gosshtool/utils/msgcrypt"
+	"gosshtool/utils/sshclient"
 )
 
 type CommandController struct {
