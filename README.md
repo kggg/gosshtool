@@ -5,7 +5,7 @@ similar to salt-ssh tools,  类似于salt-ssh的一个GO实现远程服务器管
    mysql存储数据
 
 
-![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-command.png)
+![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-host.png)
 
 ## 以单个主机的ssh连接
 ![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-command.png)
