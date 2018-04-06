@@ -10,3 +10,5 @@ similar to salt-ssh tools,  类似于salt-ssh的一个GO实现远程服务器管
 
 
 ## 用户管理， 用户权限 
+
+![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-command.png)
