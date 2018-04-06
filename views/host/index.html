@@ -70,7 +70,7 @@
                         btn: ['取消','保存'],
                         btn2: function(index, layero){
                                 var gid = $("#gname").val();
-                                var hostname = $("#name").val();
+                                var hostname = $("#hostname").val();
 				var user = $("#user").val();
 				var ip = $("#ipaddr").val();
 				var port = $("#port").val();
@@ -78,7 +78,7 @@
                                         url: '/host',
                                         type: 'post',
                                         async: 'true',
-                                        data: {id: id, hostname: name, user: user, ipaddr:ip, port:port, group:gid},
+                                        data: {id: id, hostname: hostname, user: user, ipaddr:ip, port:port, group:gid},
                                         timeout: 5000,
                                         dataType:'json',
                                         beforeSend:function(xhr){
