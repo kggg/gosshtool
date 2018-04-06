@@ -1,17 +1,22 @@
 # gosshtool
 similar to salt-ssh tools,  类似于salt-ssh的一个GO实现远程服务器管理的工具, 具有web页面操作
 
-## mysql model
-   mysql存储数据
+## 数据存储方式
+   mysql
 
-
+## 主机列表
 ![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-host.png)
 
-## 以单个主机的ssh连接
+## ssh远程操作
 ![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-command.png)
 
-## 以组别形式多个主机的ssh连接， 采用golang的goroutine形式
+## 群组ssh远程操作
+
+## 配置文件管理
 
 
-## 用户管理， 用户权限 
+## 用户管理
+
+
+## 用户权限 
 
