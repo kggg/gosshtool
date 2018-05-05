@@ -1,7 +1,7 @@
 # gosshtool
 similar to salt-ssh tools,  类似于salt-ssh的一个GO实现远程服务器管理的工具, 具有web页面操作,在多远程主机操作时，使用goroutines多协程后，ssh响应速度比ansible,salt-ssh快几倍</br>
 gosshtool:</br>
-![image](https://github.com/kggg/gosshtool/blob/master/static/img/gosshtool.png)
+![image](https://github.com/kggg/gosshtool/blob/master/static/img/gosshtool.png)</br>
 ansible:</br>
 ![image](https://github.com/kggg/gosshtool/blob/master/static/img/ansible.png)
 </br>
