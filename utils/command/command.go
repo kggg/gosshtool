@@ -16,8 +16,8 @@ type Command struct {
 }
 
 func (this *Command) AddHost(h string) {
-	groups := strings.Split(h, ",")
-	for _, host := range groups {
+	hosts := strings.Split(h, ",")
+	for _, host := range hosts {
 		host = strings.TrimSpace(host)
 		hostinfo, err := models.FindHostByName(host)
 		if err != nil {
@@ -31,6 +31,19 @@ func (this *Command) AddHost(h string) {
 	}
 	if len(this.Host) < 1 {
 		fmt.Printf("No hostname match your input [%s]\n", h)
+	}
+}
+
+func (this *Command) AddGroup(g string) {
+	groups, err := models.FindHostByGroupname(g)
+	if err != nil {
+		fmt.Errorf("get host info error from db: %v\n", err)
+	}
+	for _, v := range groups {
+		this.Host = append(this.Host, v.Hostinfo)
+	}
+	if len(this.Host) < 1 {
+		fmt.Printf("No groupname match your input [%s]\n", g)
 	}
 }
 
@@ -81,12 +94,16 @@ func ParseCommand() Command {
 		fmt.Printf("\t  -g : specified a remote hostgroup\n")
 		fmt.Printf("\t  -E : Regrex match a remote host name default\n")
 		fmt.Printf("\t  -m : select a module, -m [cmd|sendfile|getfile]\n")
+		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
 		os.Exit(0)
 	}
 	flag.Parse()
 	var cmdname Command
 	if host != "" {
 		cmdname.AddHost(host)
+	}
+	if group != "" {
+		cmdname.AddGroup(group)
 	}
 	//if reg != "" {
 	//	cmdname.AddRegular(reg)
@@ -100,7 +117,7 @@ func ParseCommand() Command {
 			flag.Usage()
 		}
 	} else {
-		fmt.Println("Do not specified a module, like as: cmd, sendfile, getfile")
+		fmt.Println("Error: must to specified a module, like as: cmd, sendfile, getfile")
 		flag.Usage()
 	}
 	return cmdname

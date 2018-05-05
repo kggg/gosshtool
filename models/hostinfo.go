@@ -50,7 +50,7 @@ func FindHostById(id int) (Hostinfo, error) {
 func FindHostByGroupname(gname string) ([]HostAll, error) {
 	var hostinfo []HostAll
 	o := orm.NewOrm()
-	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, groups.gname from hostinfo left join groups on groups.id=hostinfo.groups_id where groups.gname=?"
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, groups.gname from hostinfo inner join groups on groups.id=hostinfo.groups_id where groups.gname=?"
 	_, err := o.Raw(sql, gname).QueryRows(&hostinfo)
 	return hostinfo, err
 }
