@@ -8,7 +8,7 @@ import (
 
 func main() {
 	cmd := command.ParseCommand()
-	err := handler.Related(cmd)
+	err := handler.HandleFunc(cmd)
 	if err != nil {
 		log.Fatal("Error: ", err)
 	}

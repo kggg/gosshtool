@@ -7,77 +7,38 @@ import (
 	"gosshtool/utils/sshclient"
 	"log"
 	"reflect"
+	"strings"
 	"sync"
 )
 
-var (
-	ErrParamsNotAdapted = errors.New("The number of params is not adapted.")
-)
+type Handle map[string]reflect.Value
 
-type Funcs map[string]reflect.Value
-
-func NewFuncs(size int) Funcs {
-	return make(Funcs, size)
+func NewHandle() Handle {
+	return make(Handle, 0)
 }
 
-func (f Funcs) Bind(name string, fn interface{}) (err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			err = errors.New(name + " is not callable.")
+//添加命令行模块对应的执行函数
+func (c Handle) AddHandleFunc(name string, f interface{}) error {
+	vf := reflect.ValueOf(c)
+	vft := vf.Type()
+	mNum := vf.NumMethod()
+	for i := 0; i < mNum; i++ {
+		methodname := strings.ToLower(vft.Method(i).Name)
+		if name == methodname {
+			c[name] = vf.Method(i)
 		}
-	}()
-	v := reflect.ValueOf(fn)
-	v.Type().NumIn()
-	f[name] = v
-	return
-}
-
-func (f Funcs) Call(name string, params ...interface{}) (result []reflect.Value, err error) {
-	if _, ok := f[name]; !ok {
-		err = errors.New("The key [" + name + "] does not exist.")
-		return
 	}
-	if len(params) != f[name].Type().NumIn() {
-		err = ErrParamsNotAdapted
-		return
-	}
-	in := make([]reflect.Value, len(params))
-	for k, param := range params {
-		in[k] = reflect.ValueOf(param)
-	}
-	result = f[name].Call(in)
-	return
-}
-
-//注册函数
-func (f Funcs) RegisterFunc() {
-	err := f.Bind("cmd", cmd)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = f.Bind("sendfile", cmd)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = f.Bind("getfile", cmd)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-}
-
-func Related(com command.Command) error {
-	fn := NewFuncs(3)
-	fn.RegisterFunc()
-	_, err := fn.Call(com.Module, com)
-	if err != nil {
-		return err
+	if _, ok := c[name]; ok {
+		parms := []reflect.Value{reflect.ValueOf(f)}
+		c[name].Call(parms)
+	} else {
+		return errors.New("The module name [" + name + "] invalid")
 	}
 	return nil
 }
 
 //执行远程命令
-func cmd(com command.Command) {
+func (c Handle) Cmd(com command.Command) {
 	var wg sync.WaitGroup
 	for _, value := range com.Host {
 		wg.Add(1)
@@ -98,5 +59,15 @@ func cmd(com command.Command) {
 }
 
 //复制和发送文件
-func copyfile(com command.Command) {
+func (c Handle) Copyfile(com command.Command) {
+	log.Println(com.Module)
+}
+
+func HandleFunc(com command.Command) error {
+	fn := NewHandle()
+	err := fn.AddHandleFunc(com.Module, com)
+	if err != nil {
+		return err
+	}
+	return nil
 }
