@@ -51,13 +51,13 @@ func (c Handle) ConnRemote(com *command.Command) {
 	var wg sync.WaitGroup
 	for _, value := range com.Host {
 		wg.Add(1)
-		go func(ipaddr, user, pass string, port int, hostname string, module, c string) {
+		go func(ipaddr, user, pass string, port int, hostname string, module, act string) {
 			depass, err := msgcrypt.AesDecrypt(pass)
 			if err != nil {
 				log.Fatal(err)
 			}
 			sshClient := sshclient.New(ipaddr, user, depass, port, hostname)
-			err = sshClient.Execute(module, c)
+			err = sshClient.Execute(module, act)
 			if err != nil {
 				log.Fatal(err)
 			}

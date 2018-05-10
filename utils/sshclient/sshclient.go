@@ -9,7 +9,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,7 +24,6 @@ type CONClient struct {
 func New(ip, user, pass string, port int, hostname string) *CONClient {
 	sshclient, err := connect(ip, user, pass, port)
 	if err != nil {
-		log.Println(err)
 		return nil
 	}
 	var conclient = &CONClient{}
@@ -38,7 +36,6 @@ func New(ip, user, pass string, port int, hostname string) *CONClient {
 func (this *CONClient) session() *ssh.Session {
 	session, err := this.SshClient.NewSession()
 	if err != nil {
-		log.Println(err)
 		return nil
 	}
 	return session
@@ -51,7 +48,7 @@ func (this *CONClient) Execute(module, cmd string) error {
 		if err != nil {
 			color.Cyan("\n------ %s [%s] ------", this.Hostname, this.Addr)
 			color.Red("Command [%s] of host %s: %s\n", cmd, this.Addr, err)
-			color.Green(string(res))
+			color.Red(string(res))
 		} else {
 			color.Cyan("\n------ %s [%s] ------\n", this.Hostname, this.Addr)
 			color.Green(string(res))
@@ -79,7 +76,6 @@ func (this *CONClient) Run(cmd string) ([]byte, error) {
 func (c *CONClient) Copy(src, dest string, mode string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
-		log.Printf("open the dst file [%s] error\n", src)
 		return err
 	}
 	defer srcFile.Close()
@@ -176,7 +172,6 @@ func connect(ip, user, password string, port int) (*ssh.Client, error) {
 	)
 	//hostKey, err := getHostKey(ip)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	// get auth method

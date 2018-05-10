@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gosshtool/models"
 	"os"
-	//"regexp"
+	"regexp"
 	"strings"
 )
 
@@ -21,7 +21,8 @@ func (this *Command) AddHost(h string) {
 		host = strings.TrimSpace(host)
 		hostinfo, err := models.FindHostByName(host)
 		if err != nil {
-			fmt.Errorf("get host error from db: %v\n", err)
+			fmt.Printf("get host error from db: %v\n", err)
+			os.Exit(1)
 		}
 		if hostinfo.Name == "" {
 			continue
@@ -31,6 +32,7 @@ func (this *Command) AddHost(h string) {
 	}
 	if len(this.Host) < 1 {
 		fmt.Printf("No hostname match your input [%s]\n", h)
+		os.Exit(1)
 	}
 }
 
@@ -44,6 +46,7 @@ func (this *Command) AddGroup(g string) {
 	}
 	if len(this.Host) < 1 {
 		fmt.Printf("No groupname match your input [%s]\n", g)
+		os.Exit(1)
 	}
 }
 
@@ -51,27 +54,29 @@ func (this *Command) AddModule(c string) {
 	this.Module = c
 }
 
-/*
 func (this *Command) AddRegular(str string) {
-	allhost, err := readHost()
+	allhost, err := models.FindAllHostinfo()
 	if err != nil {
-		panic(err)
+		fmt.Println("database error")
+		os.Exit(1)
 	}
-	this.Host = make(map[string]config.HostInfo)
-	//for name, v := range allhost.Hosts {
-	for name, v := range allhost {
-		if str == "*" {
-			this.Host[name] = v
+	m, _ := regexp.Compile(str)
+
+	for _, v := range allhost {
+		if str == "*" || str == "all" {
+			this.Host = append(this.Host, v.Hostinfo)
 		} else {
-			match, _ := regexp.MatchString(str, name)
-			if match {
-				this.Host[name] = v
+			if m.MatchString(v.Name) {
+				this.Host = append(this.Host, v.Hostinfo)
 			}
 		}
 	}
+	if len(this.Host) < 1 {
+		fmt.Printf("No hostname match your input [%s]\n", str)
+		os.Exit(1)
+	}
 
 }
-*/
 
 var (
 	host   string
@@ -92,7 +97,7 @@ func ParseCommand() *Command {
 		fmt.Printf("Usage: %s host [host|group] options [cmd|copyfile]\n", os.Args[0])
 		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
 		fmt.Printf("\t  -g : specified a remote hostgroup\n")
-		fmt.Printf("\t  -E : Regrex match a remote host name default\n")
+		fmt.Printf("\t  -e : Regrex match a remote host name default\n")
 		fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
 		fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
 		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
@@ -106,9 +111,9 @@ func ParseCommand() *Command {
 	if group != "" {
 		cmdname.AddGroup(group)
 	}
-	//if reg != "" {
-	//	cmdname.AddRegular(reg)
-	//}
+	if reg != "" {
+		cmdname.AddRegular(reg)
+	}
 	if module != "" {
 		cmdname.AddModule(module)
 		if flag.NArg() > 0 {
