@@ -93,7 +93,8 @@ func ParseCommand() *Command {
 		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
 		fmt.Printf("\t  -g : specified a remote hostgroup\n")
 		fmt.Printf("\t  -E : Regrex match a remote host name default\n")
-		fmt.Printf("\t  -m : select a module, -m [cmd|sendfile|getfile]\n")
+		fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
+		fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
 		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
 		os.Exit(0)
 	}

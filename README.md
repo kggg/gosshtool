@@ -8,6 +8,17 @@ ansible:</br>
 ## 数据存储方式
    mysql
 
+## 命令行模式
+Usage: gossh host [host|group] options [cmd|copyfile]</br>
+	  -h : specified a remote host, use , split one or more  host </br>
+	  -g : specified a remote hostgroup </br>
+	  -E : Regrex match a remote host name default </br>
+	  -m : select a module, -m [cmd|copy]> </br>
+		   copy : [src, dest,mode,force,backup,user,owner]</br></br>
+
+e.g.:   gossh -h steven -m cmd 'uptime'</br>
+        gossh -h dbserver -m copy "src=/etc/nginx/nginx.conf dest=/etc/nginx/nginx.conf mode=0644"</br>
+
 ## 主机列表
 ![image](https://github.com/kggg/gosshtool/blob/master/static/img/Screenshot-host.png)
 
