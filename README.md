@@ -12,7 +12,7 @@ ansible:</br>
 Usage: gossh host [host|group] options [cmd|copyfile]</br>
 	  -h : specified a remote host, use , split one or more  host </br>
 	  -g : specified a remote hostgroup </br>
-	  -E : Regrex match a remote host name default </br>
+	  -e : Regrex match a remote host name default </br>
 	  -m : select a module, -m [cmd|copy]> </br>
 		   copy : [src, dest,mode,force,backup,user,owner]</br></br>
 
