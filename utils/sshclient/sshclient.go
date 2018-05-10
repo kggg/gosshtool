@@ -47,7 +47,7 @@ func (this *CONClient) Execute(module, cmd string) error {
 		res, err := this.Run(cmd)
 		if err != nil {
 			color.Cyan("\n------ %s [%s] ------", this.Hostname, this.Addr)
-			color.Red("Command [%s] of host %s: %s\n", cmd, this.Addr, err)
+			color.Red("Running command [%s] failed: %s\n", cmd, err)
 			color.Red(string(res))
 		} else {
 			color.Cyan("\n------ %s [%s] ------\n", this.Hostname, this.Addr)
@@ -223,10 +223,10 @@ func (c *CopyFile) Parse(str string) error {
 		case "mode":
 			c.Mode = keys[1]
 		case "force":
-			if keys[1] == "yes" {
-				c.Force = true
-			} else {
+			if keys[1] == "no" {
 				c.Force = false
+			} else {
+				c.Force = true
 			}
 		case "backup":
 			if keys[1] == "yes" {
