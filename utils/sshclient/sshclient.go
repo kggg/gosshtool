@@ -2,11 +2,13 @@ package sshclient
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -43,8 +45,9 @@ func (this *CONClient) session() *ssh.Session {
 }
 
 func (this *CONClient) Execute(module, cmd string) error {
-	if module == "cmd" {
-		res, err := this.Exec(cmd)
+	switch module {
+	case "cmd":
+		res, err := this.Run(cmd)
 		if err != nil {
 			color.Cyan("\n------ %s [%s] ------", this.Hostname, this.Addr)
 			color.Red("Command [%s] of host %s: %s\n", cmd, this.Addr, err)
@@ -54,55 +57,26 @@ func (this *CONClient) Execute(module, cmd string) error {
 			color.Green(string(res))
 		}
 		return nil
-	}
-	filepath := strings.Split(cmd, " ")
-	src := filepath[0]
-	workdir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if strings.HasPrefix(src, "workdir://") {
-		src = strings.Replace(src, "workdir:/", workdir, 1)
-	}
-	dst := filepath[1]
-	if strings.HasPrefix(dst, "workdir://") {
-		dst = strings.Replace(dst, "workdir:/", workdir, 1)
-	}
-	if module == "sendfile" {
-		err := this.SendFile(src, dst)
+	case "copy":
+		act := NewCopyFile()
+		err := act.Parse(cmd)
 		if err != nil {
 			return err
 		}
+		err = this.Copy(act.Src, act.Dest, act.Mode)
+		return err
 	}
-	if module == "getfile" {
-		fmt.Println(dst)
-		err := this.GetFile(src, dst)
-		if err != nil {
-			return err
-		}
-	}
-	defer this.Close()
 	return nil
 }
 
-func (this *CONClient) Exec(cmd string) ([]byte, error) {
+func (this *CONClient) Run(cmd string) ([]byte, error) {
 	session := this.session()
 	defer session.Close()
 	res, err := session.CombinedOutput(cmd)
 	return res, err
 }
 
-func (this *CONClient) addSftpClient() *sftp.Client {
-	sftpClient, err := sftp.NewClient(this.SshClient)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return sftpClient
-}
-
-func (this *CONClient) SendFile(src, dst string) error {
-	sftpClient := this.addSftpClient()
-	defer sftpClient.Close()
+func (c *CONClient) Copy(src, dest string, mode string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		log.Printf("open the dst file [%s] error\n", src)
@@ -110,51 +84,52 @@ func (this *CONClient) SendFile(src, dst string) error {
 	}
 	defer srcFile.Close()
 
-	dstFile, err := sftpClient.Create(dst)
-	if err != nil {
-		log.Printf("create the dst file [%s] error\n", dst)
-		return err
+	directory := filepath.Dir(dest)
+	if c.checkDirNotExists(directory) {
+		//err = c.mkRemoteDir(directory)
+		//if err != nil {
+		return errors.New(fmt.Sprintf("Destination directory %s does not exist", directory))
+		//}
 	}
-	defer dstFile.Close()
-
-	buf := make([]byte, 1024)
-	for {
-		n, _ := srcFile.Read(buf)
-		if n == 0 {
-			break
-		}
-		dstFile.Write(buf)
-	}
-
-	color.Green("Send file %s to remote server [%s] finished!", src, this.Hostname)
+	err = c.CopyFile(srcFile, dest, mode)
+	color.Green("Copy file %s to remote server [%s] finished!", src, c.Hostname)
 	return nil
 }
 
-func (this *CONClient) GetFile(src, dst string) error {
-	sftpClient := this.addSftpClient()
-	defer sftpClient.Close()
-	srcFile, err := sftpClient.Open(src)
+func (c *CONClient) CopyFile(fileReader io.Reader, remotePath string, permissions string) error {
+	session := c.session()
+
+	contents, _ := ioutil.ReadAll(fileReader)
+	reader := bytes.NewReader(contents)
+
+	size := int64(len(contents))
+	filename := filepath.Base(remotePath)
+	directory := filepath.Dir(remotePath)
+	go func() {
+		w, _ := session.StdinPipe()
+		defer w.Close()
+		fmt.Fprintln(w, "C"+permissions, size, filename)
+		io.Copy(w, reader)
+		fmt.Fprintln(w, "\x00")
+	}()
+	err := session.Run("/usr/bin/scp -qrt " + directory)
+	return err
+
+}
+
+func (c *CONClient) checkDirNotExists(dir string) bool {
+	session := c.session()
+	err := session.Run("ls -d " + dir)
 	if err != nil {
-		log.Printf("Try to open file [%s] error\n", src)
-		return err
+		return true
 	}
-	defer srcFile.Close()
+	return false
+}
 
-	dstFile, err := os.Create(dst)
-	if err != nil {
-		log.Printf("Try to create file [%s] error\n", dst)
-		return err
-	}
-	defer dstFile.Close()
-
-	if _, err = srcFile.WriteTo(dstFile); err != nil {
-		log.Println("writeto dstfile error")
-		return err
-	}
-
-	color.Green("copy file %s from remote server [%s] finished!", src, this.Hostname)
-
-	return nil
+func (c *CONClient) mkRemoteDir(dir string) error {
+	session := c.session()
+	err := session.Run("mkdir -p " + dir)
+	return err
 }
 
 func (this *CONClient) Close() {
@@ -209,9 +184,9 @@ func connect(ip, user, password string, port int) (*ssh.Client, error) {
 	auth = append(auth, ssh.Password(password))
 
 	clientConfig = &ssh.ClientConfig{
-		User:            user,
-		Auth:            auth,
-		Timeout:         30 * time.Second,
+		User:    user,
+		Auth:    auth,
+		Timeout: 30 * time.Second,
 		//HostKeyCallback: ssh.FixedHostKey(hostKey),
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
@@ -222,4 +197,53 @@ func connect(ip, user, password string, port int) (*ssh.Client, error) {
 		return nil, err
 	}
 	return client, nil
+}
+
+type CopyFile struct {
+	Src    string
+	Dest   string
+	Mode   string
+	Force  bool
+	Backup bool
+	User   string
+	Group  string
+}
+
+func NewCopyFile() *CopyFile {
+	return &CopyFile{}
+}
+
+func (c *CopyFile) Parse(str string) error {
+	if len(str) == 0 {
+		return errors.New("copy params empty")
+	}
+	strlist := strings.Split(str, " ")
+	for _, v := range strlist {
+		keys := strings.Split(v, "=")
+		switch keys[0] {
+		case "src":
+			c.Src = keys[1]
+		case "dest":
+			c.Dest = keys[1]
+		case "mode":
+			c.Mode = keys[1]
+		case "force":
+			if keys[1] == "yes" {
+				c.Force = true
+			} else {
+				c.Force = false
+			}
+		case "backup":
+			if keys[1] == "yes" {
+				c.Backup = true
+			} else {
+				c.Backup = false
+			}
+		case "user":
+			c.User = keys[1]
+		case "group":
+			c.Group = keys[1]
+		}
+	}
+	return nil
 }

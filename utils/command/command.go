@@ -87,7 +87,7 @@ func init() {
 	flag.StringVar(&module, "m", "", "module name")
 }
 
-func ParseCommand() Command {
+func ParseCommand() *Command {
 	flag.Usage = func() {
 		fmt.Printf("Usage: %s host [host|group] options [cmd|copyfile]\n", os.Args[0])
 		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
@@ -98,7 +98,7 @@ func ParseCommand() Command {
 		os.Exit(0)
 	}
 	flag.Parse()
-	var cmdname Command
+	cmdname := &Command{}
 	if host != "" {
 		cmdname.AddHost(host)
 	}

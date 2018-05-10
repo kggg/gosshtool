@@ -38,7 +38,16 @@ func (c Handle) AddHandleFunc(name string, f interface{}) error {
 }
 
 //执行远程命令
-func (c Handle) Cmd(com command.Command) {
+func (c Handle) Cmd(com *command.Command) {
+	c.ConnRemote(com)
+}
+
+//复制和发送文件
+func (c Handle) Copy(com *command.Command) {
+	c.ConnRemote(com)
+}
+
+func (c Handle) ConnRemote(com *command.Command) {
 	var wg sync.WaitGroup
 	for _, value := range com.Host {
 		wg.Add(1)
@@ -58,12 +67,7 @@ func (c Handle) Cmd(com command.Command) {
 	wg.Wait()
 }
 
-//复制和发送文件
-func (c Handle) Copyfile(com command.Command) {
-	log.Println(com.Module)
-}
-
-func HandleFunc(com command.Command) error {
+func HandleFunc(com *command.Command) error {
 	fn := NewHandle()
 	err := fn.AddHandleFunc(com.Module, com)
 	if err != nil {
