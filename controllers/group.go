@@ -143,7 +143,7 @@ func (c *GroupController) Execute() {
 				decryptPass, err := msgcrypt.AesDecrypt(pass)
 				c.CheckErr(err, "decrypt pass error")
 				client := sshclient.New(ip, user, decryptPass, port, name)
-				res, err := client.Exec(cc)
+				res, err := client.Run(cc)
 				if err != nil {
 					log.Println("Error: execute remote cmd, ", err)
 				}

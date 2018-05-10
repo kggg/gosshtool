@@ -23,7 +23,7 @@ func (c *CommandController) Execute() {
 		decryptPass, err := msgcrypt.AesDecrypt(hostname.Pass)
 		c.CheckErr(err, "decrypt pass error")
 		client := sshclient.New(hostname.Ip, hostname.User, decryptPass, hostname.Port, hostname.Name)
-		result, err := client.Exec(cc)
+		result, err := client.Run(cc)
 		c.CheckErr(err, "execute remote cmd error")
 		var cmd Cmd
 		cmd.Result = string(result)
