@@ -22,7 +22,14 @@ func (c *CommandController) Execute() {
 		}
 		decryptPass, err := msgcrypt.AesDecrypt(hostname.Pass)
 		c.CheckErr(err, "decrypt pass error")
-		client := sshclient.New(hostname.Ip, hostname.User, decryptPass, hostname.Port, hostname.Name)
+		var sskey bool
+		if hostname.Skey == 1 {
+			sskey = true
+		} else {
+			sskey = false
+		}
+		client, err := sshclient.NewClient(hostname.Ip, hostname.User, decryptPass, hostname.Port, sskey, hostname.Name)
+		c.CheckErr(err, "ssh client connect error")
 		result, err := client.Run(cc)
 		c.CheckErr(err, "execute remote cmd error")
 		var cmd Cmd

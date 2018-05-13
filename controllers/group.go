@@ -6,7 +6,7 @@ import (
 	"gosshtool/utils/msgcrypt"
 	"gosshtool/utils/sshclient"
 	"gosshtool/utils/validate"
-	"log"
+	//"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -138,21 +138,26 @@ func (c *GroupController) Execute() {
 		var wg sync.WaitGroup
 		for _, hostname := range groups {
 			wg.Add(1)
-			go func(ip, user, pass string, port int, name string) {
+			go func(ip, user, pass string, port int, skey int, name string) {
 				out := make(map[string]interface{})
 				decryptPass, err := msgcrypt.AesDecrypt(pass)
 				c.CheckErr(err, "decrypt pass error")
-				client := sshclient.New(ip, user, decryptPass, port, name)
-				res, err := client.Run(cc)
-				if err != nil {
-					log.Println("Error: execute remote cmd, ", err)
+				var sskey bool
+				if skey == 1 {
+					sskey = true
+				} else {
+					sskey = false
 				}
+				client, err := sshclient.NewClient(ip, user, decryptPass, port, sskey, name)
+				c.CheckErr(err, "ssh client connect error")
+				res, err := client.Run(cc)
+				c.CheckErr(err, "ssh session exec command error")
 				out["ip"] = ip
 				out["hostname"] = name
 				out["res"] = string(res)
 				result = append(result, out)
 				wg.Done()
-			}(hostname.Ip, hostname.User, hostname.Pass, hostname.Port, hostname.Name)
+			}(hostname.Ip, hostname.User, hostname.Pass, hostname.Port, hostname.Skey, hostname.Name)
 		}
 		wg.Wait()
 		c.Data["json"] = result

@@ -11,6 +11,7 @@ type Hostinfo struct {
 	User       string
 	Pass       string
 	Port       int
+	Skey       int
 	Groups     *Groups `orm:"rel(fk)"`
 	Created_at string
 }
@@ -28,7 +29,7 @@ func FindAllHostinfo() ([]HostAll, error) {
 	var hostinfo []HostAll
 	o := orm.NewOrm()
 	//_, err := o.QueryTable("hostinfo").RelatedSel().OrderBy("-id").Limit(5, start).All(&hostinfo)
-	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, groups.gname from hostinfo left join groups on groups.id=hostinfo.groups_id"
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, hostinfo.skey,groups.gname from hostinfo left join groups on groups.id=hostinfo.groups_id"
 	_, err := o.Raw(sql).QueryRows(&hostinfo)
 	return hostinfo, err
 }

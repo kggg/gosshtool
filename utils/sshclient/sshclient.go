@@ -9,31 +9,43 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
 
-type CONClient struct {
+type Client struct {
 	SshClient *ssh.Client
 	Hostname  string
 	Addr      string
 }
 
-func New(ip, user, pass string, port int, hostname string) *CONClient {
-	sshclient, err := connect(ip, user, pass, port)
-	if err != nil {
-		return nil
+func NewClient(ip, user, pass string, port int, skey bool, hostname string) (*Client, error) {
+	var authMethod ssh.AuthMethod
+	authMethod = ssh.Password(pass)
+	if skey {
+		file := filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
+		auth, err := PublicKeyFile(file)
+		if err != nil {
+			return nil, err
+		}
+		authMethod = auth
 	}
-	var conclient = &CONClient{}
+
+	sshclient, err := connect(ip, user, pass, port, authMethod)
+	if err != nil {
+		return nil, err
+	}
+	var conclient = &Client{}
 	conclient.SshClient = sshclient
 	conclient.Hostname = hostname
 	conclient.Addr = ip
-	return conclient
+	return conclient, nil
 }
 
-func (this *CONClient) session() *ssh.Session {
+func (this *Client) session() *ssh.Session {
 	session, err := this.SshClient.NewSession()
 	if err != nil {
 		return nil
@@ -41,7 +53,7 @@ func (this *CONClient) session() *ssh.Session {
 	return session
 }
 
-func (this *CONClient) Execute(module, cmd string) error {
+func (this *Client) Execute(module, cmd string) error {
 	switch module {
 	case "cmd":
 		res, err := this.Run(cmd)
@@ -66,14 +78,14 @@ func (this *CONClient) Execute(module, cmd string) error {
 	return nil
 }
 
-func (this *CONClient) Run(cmd string) ([]byte, error) {
+func (this *Client) Run(cmd string) ([]byte, error) {
 	session := this.session()
 	defer session.Close()
 	res, err := session.CombinedOutput(cmd)
 	return res, err
 }
 
-func (c *CONClient) Copy(src, dest string, mode string) error {
+func (c *Client) Copy(src, dest string, mode string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
@@ -92,7 +104,7 @@ func (c *CONClient) Copy(src, dest string, mode string) error {
 	return nil
 }
 
-func (c *CONClient) CopyFile(fileReader io.Reader, remotePath string, permissions string) error {
+func (c *Client) CopyFile(fileReader io.Reader, remotePath string, permissions string) error {
 	session := c.session()
 
 	contents, _ := ioutil.ReadAll(fileReader)
@@ -108,12 +120,12 @@ func (c *CONClient) CopyFile(fileReader io.Reader, remotePath string, permission
 		io.Copy(w, reader)
 		fmt.Fprintln(w, "\x00")
 	}()
-	err := session.Run("/usr/bin/scp -qrt " + directory)
+	err := session.Start("/usr/bin/scp -qrt " + directory)
 	return err
 
 }
 
-func (c *CONClient) checkDirNotExists(dir string) bool {
+func (c *Client) checkDirNotExists(dir string) bool {
 	session := c.session()
 	err := session.Run("ls -d " + dir)
 	if err != nil {
@@ -122,13 +134,13 @@ func (c *CONClient) checkDirNotExists(dir string) bool {
 	return false
 }
 
-func (c *CONClient) mkRemoteDir(dir string) error {
+func (c *Client) mkRemoteDir(dir string) error {
 	session := c.session()
 	err := session.Run("mkdir -p " + dir)
 	return err
 }
 
-func (this *CONClient) Close() {
+func (this *Client) Close() {
 	this.SshClient.Close()
 }
 
@@ -162,35 +174,44 @@ func getHostKey(host string) (ssh.PublicKey, error) {
 	return hostKey, nil
 }
 
-func connect(ip, user, password string, port int) (*ssh.Client, error) {
-	var (
-		auth         []ssh.AuthMethod
-		addr         string
-		clientConfig *ssh.ClientConfig
-		client       *ssh.Client
-		err          error
-	)
-	//hostKey, err := getHostKey(ip)
+func PublicKeyFile(file string) (ssh.AuthMethod, error) {
+	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	// get auth method
-	auth = make([]ssh.AuthMethod, 0)
-	auth = append(auth, ssh.Password(password))
 
-	clientConfig = &ssh.ClientConfig{
-		User:    user,
-		Auth:    auth,
-		Timeout: 30 * time.Second,
-		//HostKeyCallback: ssh.FixedHostKey(hostKey),
+	key, err := ssh.ParsePrivateKey(buffer)
+	if err != nil {
+		return nil, err
+	}
+	return ssh.PublicKeys(key), nil
+}
+
+func connect(ip, user, password string, port int, authMethod ssh.AuthMethod) (*ssh.Client, error) {
+	if ip == "" || user == "" {
+		return nil, errors.New("Username or IPaddress empty")
+	}
+	timeout := 30 * time.Second
+	clientConfig := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{authMethod},
+		//	HostKeyCallback: ssh.FixedHostKey(hostKey),
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
 	// connet to ssh
-	addr = fmt.Sprintf("%s:%d", ip, port)
-	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
+	addr := fmt.Sprintf("%s:%d", ip, port)
+
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if err != nil {
 		return nil, err
 	}
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, ip, clientConfig)
+	if err != nil {
+		return nil, err
+	}
+	client := ssh.NewClient(sshConn, chans, reqs)
+
 	return client, nil
 }
 
@@ -205,7 +226,7 @@ type CopyFile struct {
 }
 
 func NewCopyFile() *CopyFile {
-	return &CopyFile{}
+	return &CopyFile{Force: true, Backup: false}
 }
 
 func (c *CopyFile) Parse(str string) error {
@@ -225,14 +246,10 @@ func (c *CopyFile) Parse(str string) error {
 		case "force":
 			if keys[1] == "no" {
 				c.Force = false
-			} else {
-				c.Force = true
 			}
 		case "backup":
 			if keys[1] == "yes" {
 				c.Backup = true
-			} else {
-				c.Backup = false
 			}
 		case "user":
 			c.User = keys[1]

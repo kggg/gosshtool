@@ -17,12 +17,17 @@
   <div class="col-md-12">
   <table class="table table-hover table-striped table-bordered" id="hosttable">
 	  <thead>
-	  <tr><th>主机名</th><th>IP</th><th>用户名</th><th>密码</th><th>端口</th><th>组别</th><th>操作</th></tr>
+	  <tr><th>主机名</th><th>IP</th><th>用户名</th><th>认证模式</th><th>端口</th><th>组别</th><th>操作</th></tr>
 	  </thead>
 	  <tbody>
     {{ range .Hosts }}
        <tr><td><a href="/host/command/{{ .Name }}">{{ .Name }}</a></td>
-           <td>{{ .Ip }}</td><td>{{ .User }}</td><td>{{ .Pass }}</td>
+           <td>{{ .Ip }}</td><td>{{ .User }}</td>
+           {{if eq .Skey 1 }}
+           <td> publicKey</td>
+           {{else}}
+           <td> password</td>
+           {{end}}	   
            <td>{{ .Port }}</td>
 	   <td>{{ .Gname }}</td>
            <td>

@@ -51,18 +51,27 @@ func (c Handle) ConnRemote(com *command.Command) {
 	var wg sync.WaitGroup
 	for _, value := range com.Host {
 		wg.Add(1)
-		go func(ipaddr, user, pass string, port int, hostname string, module, act string) {
+		go func(ipaddr, user, pass string, port int, hostname string, skey int, module, act string) {
 			depass, err := msgcrypt.AesDecrypt(pass)
 			if err != nil {
 				log.Fatal(err)
 			}
-			sshClient := sshclient.New(ipaddr, user, depass, port, hostname)
+			var sskey bool
+			if skey == 1 {
+				sskey = true
+			} else {
+				sskey = false
+			}
+			sshClient, err := sshclient.NewClient(ipaddr, user, depass, port, sskey, hostname)
+			if err != nil {
+				log.Fatal(err)
+			}
 			err = sshClient.Execute(module, act)
 			if err != nil {
 				log.Fatal(err)
 			}
 			wg.Done()
-		}(value.Ip, value.User, value.Pass, value.Port, value.Name, com.Module, com.Action)
+		}(value.Ip, value.User, value.Pass, value.Port, value.Name, value.Skey, com.Module, com.Action)
 	}
 	wg.Wait()
 }
