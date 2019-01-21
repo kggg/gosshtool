@@ -7,6 +7,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type Command struct {
@@ -21,7 +23,7 @@ func (this *Command) AddHost(h string) {
 		host = strings.TrimSpace(host)
 		hostinfo, err := models.FindHostByName(host)
 		if err != nil {
-			fmt.Printf("get host error from db: %v\n", err)
+			fmt.Printf("get host by name error from db: %v\n", err)
 			os.Exit(1)
 		}
 		if hostinfo.Name == "" {
@@ -78,11 +80,25 @@ func (this *Command) AddRegular(str string) {
 
 }
 
+func (c *Command) Listhostinfo() {
+	allhost, err := models.FindAllHostinfo()
+	if err != nil {
+		fmt.Println("get all host info error")
+		os.Exit(1)
+	}
+	//fmt.Printf("## IP:port\tHostname\tUser  ##\n")
+	color.Cyan("## IP:port\tHostname\tUser  ##\n")
+	for _, v := range allhost {
+		fmt.Printf("%s:%d\t%s\t%s\n", v.Hostinfo.Ip, v.Hostinfo.Port, v.Hostinfo.Name, v.Hostinfo.User)
+	}
+	os.Exit(0)
+}
+
 var (
 	host   string
 	group  string
 	reg    string
-	list   string
+	list   bool
 	module string
 )
 
@@ -90,7 +106,7 @@ func init() {
 	flag.StringVar(&host, "h", "", "remote hostname")
 	flag.StringVar(&group, "g", "", "group name")
 	flag.StringVar(&reg, "e", "", "regrex match host name")
-	flag.StringVar(&list, "l", "", "list host info")
+	flag.BoolVar(&list, "list", false, "list host info")
 	flag.StringVar(&module, "m", "", "module name")
 }
 
@@ -100,7 +116,7 @@ func ParseCommand() *Command {
 		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
 		fmt.Printf("\t  -g : specified a remote hostgroup\n")
 		fmt.Printf("\t  -e : Regrex match a remote host name default\n")
-		fmt.Printf("\t  -l : list host info\n")
+		fmt.Printf("\t  -list : list host info\n")
 		fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
 		fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
 		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
@@ -117,6 +133,7 @@ func ParseCommand() *Command {
 	if reg != "" {
 		cmdname.AddRegular(reg)
 	}
+
 	if module != "" {
 		cmdname.AddModule(module)
 		if flag.NArg() > 0 {
@@ -125,6 +142,8 @@ func ParseCommand() *Command {
 			fmt.Println("The NArg() empty")
 			flag.Usage()
 		}
+	} else if module == "" && list {
+		cmdname.Listhostinfo()
 	} else {
 		fmt.Println("Error: must to specified a module, like as: cmd, sendfile, getfile")
 		flag.Usage()
