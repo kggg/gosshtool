@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/validation"
-	"github.com/gogather/com"
 	"gosshtool/models"
 	"gosshtool/utils/validate"
 	"strconv"
 	"strings"
+
+	"github.com/astaxie/beego/validation"
+	"github.com/gogather/com"
 )
 
 type UserController struct {
@@ -32,23 +33,23 @@ func (c *UserController) Add() {
 		var userinfo = validate.UserAdd{username, password, password2, email}
 		b, err := valid.Valid(&userinfo)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid userinfo input error")
+			c.Resp(false, err.Error()+"valid userinfo input error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+"; validation error: "+err.Message)
+				c.Resp(false, err.Key+"; validation error: "+err.Message, "")
 			}
 		}
 		check := models.UserExistCheck(username)
 		if check {
-			c.Resp(false, "用户已经存在")
+			c.Resp(false, "用户已经存在", "")
 		}
 		pass := com.Md5(password)
 		_, err = models.AddUser(username, pass, email)
 		if err != nil {
-			c.Resp(false, "添加用户信息入库失败")
+			c.Resp(false, "添加用户信息入库失败", "")
 		}
-		c.Resp(true, "添加用户入库成功")
+		c.Resp(true, "添加用户入库成功", "")
 
 	}
 	c.Data["Title"] = "新增用户"
@@ -69,20 +70,20 @@ func (c *UserController) Edit() {
 		var userinfo = validate.UserEdit{email, right}
 		b, err := valid.Valid(&userinfo)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid userinfo input error")
+			c.Resp(false, err.Error()+"valid userinfo input error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+"; validation error: "+err.Message)
+				c.Resp(false, err.Key+"; validation error: "+err.Message, "")
 			}
 		}
 		iright, err := strconv.Atoi(right)
 		c.CheckErr(err, "right atoi error")
 		_, err = models.EditUser(email, iright, bid)
 		if err != nil {
-			c.Resp(false, "添加用户信息入库失败")
+			c.Resp(false, "添加用户信息入库失败", "")
 		}
-		c.Resp(true, "添加用户入库成功")
+		c.Resp(true, "添加用户入库成功", "")
 	}
 	c.Data["Userinfo"] = userinfo
 	c.Data["Rights"] = rights
@@ -96,7 +97,7 @@ func (c *UserController) Delete() {
 	c.CheckErr(err, "delete id error with a to i")
 	_, err = models.DeleteUser(bid)
 	if err == nil {
-		c.Resp(true, "success")
+		c.Resp(true, "success", "")
 	}
 }
 
@@ -109,26 +110,26 @@ func (c *UserController) ChangePass() {
 		newpass := strings.TrimSpace(c.GetString("newpass"))
 		newpass2 := strings.TrimSpace(c.GetString("newpass2"))
 		if oldpass == "" || newpass == "" || newpass2 == "" {
-			c.Resp(false, "密码不能为空")
+			c.Resp(false, "密码不能为空", "")
 		}
 		if len(oldpass) > 50 || len(newpass) > 50 || len(newpass2) > 50 {
-			c.Resp(false, "密码长度不能超过50字符")
+			c.Resp(false, "密码长度不能超过50字符", "")
 		}
 		if newpass != newpass2 {
-			c.Resp(false, "新密码与确认密码不一致")
+			c.Resp(false, "新密码与确认密码不一致", "")
 		}
 		userinfo, err := models.FindUserById(bid)
 		c.CheckErr(err, "get user info by id error")
 		encryptoldpass := com.Md5(oldpass)
 		if encryptoldpass != userinfo.Pass {
-			c.Resp(false, "旧密码不正确")
+			c.Resp(false, "旧密码不正确", "")
 		}
 		encryptPass := com.Md5(newpass)
 		_, err = models.ChangeUserPass(encryptPass, bid)
 		if err != nil {
-			c.Resp(false, "修改密码入库失败")
+			c.Resp(false, "修改密码入库失败", "")
 		}
-		c.Resp(true, "修改密码成功")
+		c.Resp(true, "修改密码成功", "")
 	}
 	c.Data["Id"] = bid
 	c.TplName = "user/changepass.html"

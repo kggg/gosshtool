@@ -1,23 +1,24 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
 	"strings"
+
+	"github.com/astaxie/beego"
 )
 
 type BaseController struct {
 	beego.Controller
 }
 
-func (this *BaseController) Resp(status bool, str interface{}) {
-	this.Data["json"] = &map[string]interface{}{"status": status, "info": str}
+func (this *BaseController) Resp(status bool, msg string, str interface{}) {
+	this.Data["json"] = &map[string]interface{}{"status": status, "info": msg, "data": str}
 	this.ServeJSON()
 	this.StopRun()
 }
 
 func (this *BaseController) CheckErr(err error, str string) {
 	if err != nil {
-		this.Resp(false, str)
+		this.Resp(false, str, "")
 	}
 }
 

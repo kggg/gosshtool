@@ -18,7 +18,7 @@ func (c *CommandController) Execute() {
 	if c.isPost() {
 		cc := c.GetString("command")
 		if cc == "" {
-			c.Resp(false, "the command empty")
+			c.Resp(false, "the command empty", "")
 		}
 		decryptPass, err := msgcrypt.AesDecrypt(hostname.Pass)
 		c.CheckErr(err, "decrypt pass error")

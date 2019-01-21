@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/validation"
 	"gosshtool/models"
 	"gosshtool/utils/msgcrypt"
 	"gosshtool/utils/sshclient"
 	"gosshtool/utils/validate"
+
+	"github.com/astaxie/beego/validation"
+
 	//"log"
 	"strconv"
 	"strings"
@@ -28,18 +30,18 @@ func (c *GroupController) Get() {
 		var groupv = validate.Groups{group, info}
 		b, err := valid.Valid(&groupv)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid groups info error")
+			c.Resp(false, err.Error()+"valid groups info error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message)
+				c.Resp(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		_, err = models.EditGroups(group, info, gid)
 		if err == nil {
-			c.Resp(true, "编辑组名成功")
+			c.Resp(true, "编辑组名成功", "")
 		} else {
-			c.Resp(false, "编辑组名失败")
+			c.Resp(false, "编辑组名失败", "")
 		}
 	}
 	c.Data["Title"] = "组别列表"
@@ -57,21 +59,21 @@ func (c *GroupController) AddGroups() {
 		var groupv = validate.Groups{group, info}
 		b, err := valid.Valid(&groupv)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid groups info error")
+			c.Resp(false, err.Error()+"valid groups info error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message)
+				c.Resp(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		if models.GroupsExistCheck(group) {
-			c.Resp(false, "the groupname has been already existing")
+			c.Resp(false, "the groupname has been already existing", "")
 		}
 		_, err = models.AddGroups(group, info)
 		if err == nil {
-			c.Resp(true, "添加组名成功")
+			c.Resp(true, "添加组名成功", "")
 		} else {
-			c.Resp(false, "添加组名失败")
+			c.Resp(false, "添加组名失败", "")
 		}
 	}
 
@@ -132,7 +134,7 @@ func (c *GroupController) Execute() {
 	if c.isPost() {
 		cc := c.GetString("command")
 		if cc == "" {
-			c.Resp(false, "the command empty")
+			c.Resp(false, "the command empty", "")
 		}
 		var result = make([]map[string]interface{}, 0, len(groups))
 		var wg sync.WaitGroup

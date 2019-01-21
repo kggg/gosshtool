@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/validation"
 	"gosshtool/models"
 	"gosshtool/utils/msgcrypt"
 	"gosshtool/utils/validate"
 	"strconv"
 	"strings"
+
+	"github.com/astaxie/beego/validation"
 )
 
 type HostController struct {
@@ -30,11 +31,11 @@ func (c *HostController) Get() {
 		var hostinfo = validate.HostEdit{hostname, ipaddr, user, port, group}
 		b, err := valid.Valid(&hostinfo)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid hostinfo error")
+			c.Resp(false, err.Error()+"valid hostinfo error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message)
+				c.Resp(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		iport, err := strconv.Atoi(port)
@@ -43,9 +44,9 @@ func (c *HostController) Get() {
 		c.CheckErr(err, "groupid to int error")
 		_, err = models.EditHost(hostname, ipaddr, user, iport, igroup, hid)
 		if err == nil {
-			c.Resp(true, "编辑主机成功")
+			c.Resp(true, "编辑主机成功", "")
 		} else {
-			c.Resp(false, "修改失败")
+			c.Resp(false, "修改失败", "")
 		}
 	}
 	c.Data["Title"] = "主机列表"
@@ -70,11 +71,11 @@ func (c *HostController) AddHost() {
 		var hostinfo = validate.HostInfo{hostname, ipaddr, user, pass, pass2, port, group}
 		b, err := valid.Valid(&hostinfo)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid hostinfo error")
+			c.Resp(false, err.Error()+"valid hostinfo error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message)
+				c.Resp(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		iport, err := strconv.Atoi(port)
@@ -82,15 +83,15 @@ func (c *HostController) AddHost() {
 		igroup, err := strconv.Atoi(group)
 		c.CheckErr(err, "groupid to int error")
 		if models.NameExistCheck(hostname) {
-			c.Resp(false, "the hostname has been already existing")
+			c.Resp(false, "the hostname has been already existing", "")
 		}
 		encryptPass, err := msgcrypt.AesEncrypt(pass)
 		c.CheckErr(err, "encrypt pass error")
 		_, err = models.AddHost(hostname, ipaddr, user, encryptPass, iport, igroup)
 		if err == nil {
-			c.Resp(true, "添加主机成功")
+			c.Resp(true, "添加主机成功", "")
 		} else {
-			c.Resp(false, "添加主机失败")
+			c.Resp(false, "添加主机失败", "")
 		}
 
 	}
@@ -153,28 +154,28 @@ func (c *HostController) ChangePass() {
 		newpass := strings.TrimSpace(c.GetString("newpass"))
 		newpass2 := strings.TrimSpace(c.GetString("newpass2"))
 		if oldpass == "" || newpass == "" || newpass2 == "" {
-			c.Resp(false, "密码不能为空")
+			c.Resp(false, "密码不能为空", "")
 		}
 		if len(oldpass) > 50 || len(newpass) > 50 || len(newpass2) > 50 {
-			c.Resp(false, "密码长度不能超过50字符")
+			c.Resp(false, "密码长度不能超过50字符", "")
 		}
 		if newpass != newpass2 {
-			c.Resp(false, "新密码与确认密码不一致")
+			c.Resp(false, "新密码与确认密码不一致", "")
 		}
 		hostinfo, err := models.FindHostById(bid)
 		c.CheckErr(err, "get host info by id error")
 		encryptoldpass, cerr := msgcrypt.AesEncrypt(oldpass)
 		c.CheckErr(cerr, "encrypt oldpass error")
 		if encryptoldpass != hostinfo.Pass {
-			c.Resp(false, "旧密码不正确")
+			c.Resp(false, "旧密码不正确", "")
 		}
 		encryptPass, err := msgcrypt.AesEncrypt(newpass)
 		c.CheckErr(err, "encrypt newpass error")
 		_, err = models.ChangeHostPass(encryptPass, bid)
 		if err != nil {
-			c.Resp(false, "修改密码入库失败")
+			c.Resp(false, "修改密码入库失败", "")
 		}
-		c.Resp(true, "修改密码成功")
+		c.Resp(true, "修改密码成功", "")
 	}
 	c.Data["Id"] = bid
 	c.TplName = "host/changepass.html"

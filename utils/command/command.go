@@ -82,6 +82,7 @@ var (
 	host   string
 	group  string
 	reg    string
+	list   string
 	module string
 )
 
@@ -89,6 +90,7 @@ func init() {
 	flag.StringVar(&host, "h", "", "remote hostname")
 	flag.StringVar(&group, "g", "", "group name")
 	flag.StringVar(&reg, "e", "", "regrex match host name")
+	flag.StringVar(&list, "l", "", "list host info")
 	flag.StringVar(&module, "m", "", "module name")
 }
 
@@ -98,6 +100,7 @@ func ParseCommand() *Command {
 		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
 		fmt.Printf("\t  -g : specified a remote hostgroup\n")
 		fmt.Printf("\t  -e : Regrex match a remote host name default\n")
+		fmt.Printf("\t  -l : list host info\n")
 		fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
 		fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
 		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
