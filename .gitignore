@@ -3,3 +3,4 @@ web
 gosshtool
 session/*
 static/layui
+models/base.go
