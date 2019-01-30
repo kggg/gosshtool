@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gosshtool/utils/command"
+	"gosshtool/bin/command"
 	"gosshtool/utils/handler"
 	"log"
 )

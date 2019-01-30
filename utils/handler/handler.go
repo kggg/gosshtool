@@ -2,7 +2,7 @@ package handler
 
 import (
 	"errors"
-	"gosshtool/utils/command"
+	"gosshtool/bin/command"
 	"gosshtool/utils/msgcrypt"
 	"gosshtool/utils/sshclient"
 	"log"
