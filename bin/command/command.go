@@ -21,7 +21,6 @@ type Command struct {
 }
 
 func (this *Command) AddHost(h string) {
-	var hostinfo models.Hostinfo
 	hosts := strings.Split(h, ",")
 	for _, host := range hosts {
 		host = strings.TrimSpace(host)
@@ -34,12 +33,12 @@ func (this *Command) AddHost(h string) {
 			if hostinfo.Name == "" {
 				continue
 			}
+			this.Host = append(this.Host, hostinfo)
 		}
 		if this.Model == "file" {
 
 		}
 
-		this.Host = append(this.Host, hostinfo)
 	}
 	if len(this.Host) < 1 {
 		fmt.Printf("No hostname match your input [%s]\n", h)
@@ -119,6 +118,14 @@ func init() {
 	flag.StringVar(&module, "m", "", "module name")
 }
 
+func Getworkdir() (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return pwd, nil
+}
+
 func ParseCommand() *Command {
 	flag.Usage = func() {
 		fmt.Printf("Usage: %s host [host|group] options [cmd|copyfile]\n", os.Args[0])
@@ -132,7 +139,12 @@ func ParseCommand() *Command {
 		os.Exit(0)
 	}
 	flag.Parse()
-	cfg, err := conf.Newconfig(conf.Filepath)
+	workdir, err := Getworkdir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	filename := workdir + "/conf/conf.ini"
+	cfg, err := conf.Newconfig(filename)
 	if err != nil {
 		log.Fatal(err)
 	}

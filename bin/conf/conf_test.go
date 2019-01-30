@@ -8,7 +8,12 @@ import (
 //const filepath = "/bin/conf/conf.ini"
 
 func TestGetmode(t *testing.T) {
-	cfg, err := Newconfig(filepath)
+	filedir, err := Getworkdir()
+	if err != nil {
+		t.Error(err)
+	}
+	filename := filedir + "/conf.ini"
+	cfg, err := Newconfig(filename)
 	if err != nil {
 		//fmt.Println(err)
 		t.Error(err)
@@ -19,7 +24,12 @@ func TestGetmode(t *testing.T) {
 }
 
 func TestGetDBparams(t *testing.T) {
-	cfg, err := Newconfig(filepath)
+	filedir, err := Getworkdir()
+	if err != nil {
+		t.Error(err)
+	}
+	filename := filedir + "/conf.ini"
+	cfg, err := Newconfig(filename)
 	if err != nil {
 		//fmt.Println(err)
 		t.Error(err)
@@ -29,7 +39,12 @@ func TestGetDBparams(t *testing.T) {
 }
 
 func TestGetFileinfo(t *testing.T) {
-	cfg, err := Newconfig(filepath)
+	filedir, err := Getworkdir()
+	if err != nil {
+		t.Error(err)
+	}
+	filename := filedir + "/conf.ini"
+	cfg, err := Newconfig(filename)
 	if err != nil {
 		t.Error(err)
 	}

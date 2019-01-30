@@ -2,9 +2,16 @@ package conf
 
 import (
 	"github.com/BurntSushi/toml"
+	"os"
 )
 
-const Filepath = "C:/Users/home/go/src/gosshtool/bin/conf/conf.ini"
+func Getworkdir() (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return pwd, nil
+}
 
 type Mysql struct {
 	Username string
