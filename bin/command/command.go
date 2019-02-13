@@ -127,17 +127,19 @@ func Getworkdir() (string, error) {
 }
 
 func ParseCommand() *Command {
-	flag.Usage = func() {
-		fmt.Printf("Usage: %s host [host|group] options [cmd|copyfile]\n", os.Args[0])
-		fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
-		fmt.Printf("\t  -g : specified a remote hostgroup\n")
-		fmt.Printf("\t  -e : Regrex match a remote host name default\n")
-		fmt.Printf("\t  -list : list host info\n")
-		fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
-		fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
-		fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
-		os.Exit(0)
-	}
+	/*
+		flag.Usage = func() {
+			fmt.Printf("Usage: %s host [host|group] options [cmd|copyfile]\n", os.Args[0])
+			fmt.Printf("\t  -h : specified a remote host, use , split one or more  host\n")
+			fmt.Printf("\t  -g : specified a remote hostgroup\n")
+			fmt.Printf("\t  -e : Regrex match a remote host name default\n")
+			fmt.Printf("\t  -list : list host info\n")
+			fmt.Printf("\t  -m : select a module, -m [cmd|copy]\n")
+			fmt.Printf("\t\t   copy : [src, dest,mode,force,backup,user,owner]\n\n")
+			fmt.Printf("e.g.:   gosshtoll -h steven -m cmd 'uptime'\n")
+			os.Exit(0)
+		}
+	*/
 	flag.Parse()
 	workdir, err := Getworkdir()
 	if err != nil {

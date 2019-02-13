@@ -1,17 +1,10 @@
 package conf
 
 import (
-	"github.com/BurntSushi/toml"
 	"os"
-)
 
-func Getworkdir() (string, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return pwd, nil
-}
+	"github.com/BurntSushi/toml"
+)
 
 type Mysql struct {
 	Username string
@@ -54,4 +47,30 @@ func (c *Config) GetDBparams() Mysql {
 
 func (c *Config) GetFileinfo() File {
 	return c.Fileinfo
+}
+
+func (c *Config) GetHostfile(filepath string) (*File, error) {
+	var fileinfo File
+	/*
+		filepath := c.Fileinfo.Hostpath
+		workdir, err := Getworkdir()
+		if err != nil {
+			return File{}, err
+		}
+		filepath = workdir + filepath
+	*/
+	_, err := toml.DecodeFile(filepath, fileinfo)
+	if err != nil {
+		return &File{}, err
+	}
+	return &fileinfo, nil
+
+}
+
+func Getworkdir() (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return pwd, nil
 }

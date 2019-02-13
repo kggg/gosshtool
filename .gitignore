@@ -1,3 +1,4 @@
+bin/conf/conf.ini
 conf/*
 web
 gosshtool

@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"errors"
+	//"fmt"
 )
 
 var key = []byte("abcdefghijklmnop")
@@ -45,6 +46,7 @@ func AesDecrypt(crypted string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//fmt.Println(decodeBytes)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -52,9 +54,11 @@ func AesDecrypt(crypted string) (string, error) {
 	blockSize := block.BlockSize()
 	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
 	origData := make([]byte, len(decodeBytes))
+	//fmt.Println("test origdata ", origData)
 	blockMode.CryptBlocks(origData, decodeBytes)
 	origData, err = PKCS7UnPadding(origData)
 	if err != nil {
+		//fmt.Println("PKCS7UnPadding error")
 		return "", err
 	}
 	decryptstr := string(origData)

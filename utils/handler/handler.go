@@ -52,16 +52,20 @@ func (c Handle) ConnRemote(com *command.Command) {
 	for _, value := range com.Host {
 		wg.Add(1)
 		go func(ipaddr, user, pass string, port int, hostname string, skey int, module, act string) {
-			depass, err := msgcrypt.AesDecrypt(pass)
-			if err != nil {
-				log.Fatal(err)
-			}
+			//log.Println("aa is ", depass)
 			var sskey bool
-			if skey == 1 {
-				sskey = true
-			} else {
+			var depass string
+			if skey != 1 {
 				sskey = false
+				dess, err := msgcrypt.AesDecrypt(pass)
+				if err != nil {
+					log.Fatal(err)
+				}
+				depass = dess
+			} else {
+				sskey = true
 			}
+
 			sshClient, err := sshclient.NewClient(ipaddr, user, depass, port, sskey, hostname)
 			if err != nil {
 				log.Fatal(err)
