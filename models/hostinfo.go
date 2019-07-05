@@ -12,7 +12,7 @@ type Hostinfo struct {
 	Pass       string
 	Port       int
 	Skey       int
-	Hostgroups *Hostgroups `orm:"rel(fk)"`
+	Groups     *Hostgroups `orm:"rel(fk)"`
 	Created_at string
 }
 
@@ -29,7 +29,7 @@ func FindAllHostinfo() ([]HostAll, error) {
 	var hostinfo []HostAll
 	o := orm.NewOrm()
 	//_, err := o.QueryTable("hostinfo").RelatedSel().OrderBy("-id").Limit(5, start).All(&hostinfo)
-	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, hostinfo.skey,hostgroups.gname from hostinfo left join hostgroups on hostgroups.id=hostinfo.hostgroups_id"
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, hostinfo.skey,hostgroups.gname from hostinfo left join hostgroups on hostgroups.id=hostinfo.groups_id"
 	_, err := o.Raw(sql).QueryRows(&hostinfo)
 	return hostinfo, err
 }
@@ -52,7 +52,7 @@ func FindHostById(id int) (Hostinfo, error) {
 func FindHostByGroupname(gname string) ([]HostAll, error) {
 	var hostinfo []HostAll
 	o := orm.NewOrm()
-	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, hostgroups.gname from hostinfo inner join hostgroups on hostgroups.id=hostinfo.hostgroups_id where hostgroups.gname=?"
+	sql := "select hostinfo.id,hostinfo.ip,hostinfo.user,hostinfo.pass,hostinfo.port,hostinfo.name, hostgroups.gname from hostinfo inner join hostgroups on hostgroups.id=hostinfo.groups_id where hostgroups.gname=?"
 	_, err := o.Raw(sql, gname).QueryRows(&hostinfo)
 	return hostinfo, err
 }
@@ -66,7 +66,7 @@ func FindHostByIp(str string) (Hostinfo, error) {
 
 func AddHost(name, ip, user, pass string, port int, group int) (int64, error) {
 	o := orm.NewOrm()
-	sql := "insert into hostinfo (name, ip, user, pass,port,hostgroups_id) values( ?, ?, ?, ?,?,?)"
+	sql := "insert into hostinfo (name, ip, user, pass,port,groups_id) values( ?, ?, ?, ?,?,?)"
 	res, err := o.Raw(sql, name, ip, user, pass, port, group).Exec()
 	if nil != err {
 		return 0, err
@@ -78,7 +78,7 @@ func AddHost(name, ip, user, pass string, port int, group int) (int64, error) {
 
 func EditHost(name, ip, user string, port int, group int, id int) (int64, error) {
 	o := orm.NewOrm()
-	sql := "update hostinfo  set name=?,ip=?, user=?,port=?, hostgroups_id=? where id=?"
+	sql := "update hostinfo  set name=?,ip=?, user=?,port=?, groups_id=? where id=?"
 	res, err := o.Raw(sql, name, ip, user, port, group, id).Exec()
 	if nil != err {
 		return 0, err
