@@ -10,15 +10,15 @@ type BaseController struct {
 	beego.Controller
 }
 
-func (this *BaseController) Resp(status bool, msg string, str interface{}) {
-	this.Data["json"] = &map[string]interface{}{"status": status, "info": msg, "data": str}
+func (this *BaseController) Response(status bool, str string, data interface{}) {
+	this.Data["json"] = &map[string]interface{}{"status": status, "info": str, "data": data}
 	this.ServeJSON()
 	this.StopRun()
 }
 
-func (this *BaseController) CheckErr(err error, str string) {
+func (this *BaseController) checkerr(err error, str string) {
 	if err != nil {
-		this.Resp(false, str, "")
+		this.Response(false, str, err.Error())
 	}
 }
 

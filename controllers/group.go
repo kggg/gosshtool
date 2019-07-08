@@ -20,7 +20,7 @@ type GroupController struct {
 
 func (c *GroupController) Get() {
 	groups, err := models.FindAllGroups()
-	c.CheckErr(err, "get groups info error")
+	c.checkerr(err, "get groups info error")
 	if c.isPost() {
 		group := strings.TrimSpace(c.GetString("gname"))
 		info := c.GetString("info")
@@ -30,18 +30,18 @@ func (c *GroupController) Get() {
 		var groupv = validate.Groups{group, info}
 		b, err := valid.Valid(&groupv)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid groups info error", "")
+			c.Response(false, err.Error()+"valid groups info error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message, "")
+				c.Response(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		_, err = models.EditGroups(group, info, gid)
 		if err == nil {
-			c.Resp(true, "编辑组名成功", "")
+			c.Response(true, "编辑组名成功", "")
 		} else {
-			c.Resp(false, "编辑组名失败", "")
+			c.Response(false, "编辑组名失败", "")
 		}
 	}
 	c.Data["Title"] = "组别列表"
@@ -59,21 +59,21 @@ func (c *GroupController) AddGroups() {
 		var groupv = validate.Groups{group, info}
 		b, err := valid.Valid(&groupv)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid groups info error", "")
+			c.Response(false, err.Error()+"valid groups info error", "")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message, "")
+				c.Response(false, err.Key+" validation error: "+err.Message, "")
 			}
 		}
 		if models.GroupsExistCheck(group) {
-			c.Resp(false, "the groupname has been already existing", "")
+			c.Response(false, "the groupname has been already existing", "")
 		}
 		_, err = models.AddGroups(group, info)
 		if err == nil {
-			c.Resp(true, "添加组名成功", "")
+			c.Response(true, "添加组名成功", "")
 		} else {
-			c.Resp(false, "添加组名失败", "")
+			c.Response(false, "添加组名失败", "")
 		}
 	}
 
@@ -85,9 +85,9 @@ func (c *GroupController) AddGroups() {
 func (c *GroupController) EditGroups() {
 	id := c.Ctx.Input.Param(":id")
 	bid, err := strconv.Atoi(id)
-	c.CheckErr(err, "delete id error with a to i")
+	c.checkerr(err, "delete id error with a to i")
 	groupinfo, err := models.FindGroupsById(bid)
-	c.CheckErr(err, "get groupid info error")
+	c.checkerr(err, "get groupid info error")
 	if c.isPost() {
 		group := strings.TrimSpace(c.GetString("gname"))
 		info := c.GetString("info")
@@ -96,18 +96,18 @@ func (c *GroupController) EditGroups() {
 		var groupv = validate.Groups{group, info}
 		b, err := valid.Valid(&groupv)
 		if err != nil {
-			c.Resp(false, err.Error()+"valid groups info error")
+			c.Response(false, err.Error()+"valid groups info error")
 		}
 		if !b {
 			for _, err := range valid.Errors {
-				c.Resp(false, err.Key+" validation error: "+err.Message)
+				c.Response(false, err.Key+" validation error: "+err.Message)
 			}
 		}
 		_, err = models.EditGroups(group, info, bid)
 		if err == nil {
-			c.Resp(true, "编辑组名成功")
+			c.Response(true, "编辑组名成功")
 		} else {
-			c.Resp(false, "编辑组名失败")
+			c.Response(false, "编辑组名失败")
 		}
 	}
 	c.Data["Title"] = "编辑组别"
@@ -119,7 +119,7 @@ func (c *GroupController) EditGroups() {
 func (c *GroupController) DeleteGroups() {
 	id := c.Ctx.Input.Param(":id")
 	bid, err := strconv.Atoi(id)
-	c.CheckErr(err, "delete id error with a to i")
+	c.checkerr(err, "delete id error with a to i")
 	_, err = models.DeleteGroups(bid)
 	if err == nil {
 		c.Redirect("/group", 302)
@@ -129,12 +129,12 @@ func (c *GroupController) DeleteGroups() {
 func (c *GroupController) Execute() {
 	groupname := c.Ctx.Input.Param(":group")
 	groups, err := models.FindHostByGroupname(groupname)
-	c.CheckErr(err, "get group by name error")
+	c.checkerr(err, "get group by name error")
 
 	if c.isPost() {
 		cc := c.GetString("command")
 		if cc == "" {
-			c.Resp(false, "the command empty", "")
+			c.Response(false, "the command empty", "")
 		}
 		var result = make([]map[string]interface{}, 0, len(groups))
 		var wg sync.WaitGroup
@@ -143,7 +143,7 @@ func (c *GroupController) Execute() {
 			go func(ip, user, pass string, port int, skey int, name string) {
 				out := make(map[string]interface{})
 				decryptPass, err := msgcrypt.AesDecrypt(pass)
-				c.CheckErr(err, "decrypt pass error")
+				c.checkerr(err, "decrypt pass error")
 				var sskey bool
 				if skey == 1 {
 					sskey = true
@@ -151,9 +151,9 @@ func (c *GroupController) Execute() {
 					sskey = false
 				}
 				client, err := sshclient.NewClient(ip, user, decryptPass, port, sskey, name)
-				c.CheckErr(err, "ssh client connect error")
+				c.checkerr(err, "ssh client connect error")
 				res, err := client.Run(cc)
-				c.CheckErr(err, "ssh session exec command error")
+				c.checkerr(err, "ssh session exec command error")
 				out["ip"] = ip
 				out["hostname"] = name
 				out["res"] = string(res)
